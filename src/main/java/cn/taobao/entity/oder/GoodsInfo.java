@@ -1,4 +1,4 @@
-package cn.taobao.vo.oder;
+package cn.taobao.entity.oder;
 
 /**
  * @ClassName GoodsInfo

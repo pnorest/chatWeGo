@@ -1,19 +1,15 @@
 package cn.zhouyafeng.itchat4j.core;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.taobao.robot.tbk.SearchResult;
-import cn.taobao.robot.tbk.TbkClient;
 import cn.taobao.robot.wx.Robot2;
-import cn.taobao.vo.TaoBaoResult;
+import cn.taobao.entity.item.TaoBaoResult;
 import com.joe.http.client.IHttpClient;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,9 +142,8 @@ public class MsgCenter {
 							//if(groupId.equals("@@e3c20c252fac4ff1129dc5dcc2190218ee417cd47fd28c958ad6f26347bda7cb")) {//如果是测试群
 						  if (msg.getType() != null ) {
 							  if (msg.getType().equals(MsgTypeEnum.TEXT.getType())) {
-								  String regex = "\\w{11}";
+								  String regex = "\\w{11}";//淘宝口令匹配，也会匹配到订单号 ，故应该先匹配订单号
 								  String content = msg.getContent();
-
 								  String TAO_TOKEN = getMatchers(regex, content);
 								  if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {
 									  //当群消息没有匹配到出淘口令时
@@ -211,9 +206,16 @@ public class MsgCenter {
 							if (msg.getType() != null ) {//对个人回复所有消息，对群只回复文本消息
 								try {
 									if (msg.getType().equals(MsgTypeEnum.TEXT.getType())) {
-										String regex="\\w{11}";
-										String content=msg.getContent();
+										String regex="\\w{11}";//淘口令匹配
+										String orderRegex="^[0-9]{18}";//^[0-9]{18}
+										String nickName=core.getNickName();//pnorest
+										String userName=core.getUserName();//@fffa0b286e63ebbcc3cb0d85ba9fc147f35dbff9580e7ee7c6476035dcc9b1cc
+										Map<String, JSONObject> map=core.getUserInfoMap();
+										//to：   @d25de719d498705e3fbb321ce0276bc2bb3c217b2dacba14c7439094efefe294
+										//from:  @e05e8f2a16601011ca445d627964c8b6095e9ca908f7f490c2e271bf3dc683a7
 
+
+										String content=msg.getContent();
 										String TAO_TOKEN=getMatchers(regex,content);
 										if(TAO_TOKEN.equals("")||TAO_TOKEN==""){
 											//当群消息没有匹配到出淘口令时
@@ -224,7 +226,6 @@ public class MsgCenter {
 											Map searchMap = robot2.convertLink(taoToken);//转取淘口令，得到click_url  商品id num_iid
 											if(searchMap==null){
 												MessageTools.sendMsgById("本商品无优惠券噢", core.getMsgList().get(0).getFromUserName());
-
 											}else {
 												String num_iid=(String) searchMap.get("num_iid");
 												TaoBaoResult taoBaoResult=robot2.findInfo(num_iid);//通过商品id得到该商品的具体信息，佣金比例，价格和自己的二合一淘口令

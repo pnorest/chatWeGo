@@ -1,38 +1,27 @@
 package cn.taobao.robot.wx;
 
-import cn.taobao.robot.Robot;
-import cn.taobao.robot.comment.Msg;
 import cn.taobao.robot.dto.LoginEvent;
-import cn.taobao.robot.exception.RobotException;
-import cn.taobao.robot.ext.LoginListener;
-import cn.taobao.robot.ext.MsgListener;
-import cn.taobao.robot.ext.QrCallback;
 import cn.taobao.robot.tbk.Goods;
 import cn.taobao.robot.tbk.Link;
 import cn.taobao.robot.tbk.SearchResult;
-import cn.taobao.robot.tbk.TbkClient;
-import cn.taobao.vo.ItemInfo;
-import cn.taobao.vo.TaoBaoResult;
-import com.alibaba.fastjson.JSON;
+import cn.taobao.entity.item.ItemInfo;
+import cn.taobao.entity.item.TaoBaoResult;
+import cn.taobao.entity.oder.GoodsInfo;
+import cn.taobao.entity.oder.Order;
 import com.joe.http.IHttpClientUtil;
 import com.joe.http.client.IHttpClient;
 import com.joe.utils.concurrent.ThreadUtil;
-import com.joe.utils.img.IQRCode;
 import com.joe.utils.parse.json.JsonParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -86,6 +75,7 @@ public class Robot2 {
 
     private static final String FIND_INFO ="https://api.open.21ds.cn/apiv2/getitemgyurl?apkey=%s&itemid=%s&pid=%s&tbname=%s&tpwd=1&extsearch=1&shorturl=1&hasiteminfo=1";
 
+    private static final String ORDER_DETAILS="https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=%s&end_time=%s&start_time=%s&tbname=%s";
 
     //网络请求客户端
     protected IHttpClientUtil clientUtil ;
@@ -482,5 +472,156 @@ public class Robot2 {
         }
         return null;
     }
+
+
+
+
+    /**
+     * @param
+     * @return 使用喵有券使用商品id查询商品优惠信息和淘口令
+     */
+
+//    {
+//        "code": 200,
+//            "data": [
+//        {
+//            "adzone_id": "109645300226",
+//                "adzone_name": "爱分享",
+//                "alimama_rate": "0.00",
+//                "alimama_share_fee": "0.00",
+//                "alipay_total_price": "0.00",
+//                "click_time": "2019-11-13 10:07:55",
+//                "deposit_price": "0.00",
+//                "flow_source": "--",
+//                "income_rate": "1.35",
+//                "item_category_name": "其他",
+//                "item_id": "605166441855",
+//                "item_img": "//img.alicdn.com/bao/uploaded/i4/892006832/O1CN01lmZGeR20L6UYIAekP_!!2-item_pic.png",
+//                "item_link": "http://item.taobao.com/item.htm?id=605166441855",
+//                "item_num": "1",
+//                "item_price": "9999.00",
+//                "item_title": "【赠品】好学卡 百门好课限时免费学",
+//                "order_type": "天猫",
+//                "pub_id": "54175988",
+//                "pub_share_fee": "0.00",
+//                "pub_share_pre_fee": "0.00",
+//                "pub_share_rate": "100.00",
+//                "refund_tag": "0",
+//                "seller_nick": "强泽图书专营店",
+//                "seller_shop_title": "强泽图书专营店",
+//                "site_id": "1005850130",
+//                "site_name": "爱分享(手机客户端专享)_54175988",
+//                "subsidy_fee": "0.00",
+//                "subsidy_rate": "0.00",
+//                "subsidy_type": "--",
+//                "tb_deposit_time": "--",
+//                "tb_paid_time": "2019-11-13 10:15:09",
+//                "terminal_type": "无线",
+//                "tk_commission_fee_for_media_platform": "0.00",
+//                "tk_commission_pre_fee_for_media_platform": "0.00",
+//                "tk_commission_rate_for_media_platform": "0.00",
+//                "tk_create_time": "2019-11-13 10:15:12",
+//                "tk_deposit_time": "--",
+//                "tk_order_role": "2",
+//                "tk_paid_time": "2019-11-13 10:15:19",
+//                "tk_status": "12",
+//                "tk_total_rate": "1.35",
+//                "total_commission_fee": "0.00",
+//                "total_commission_rate": "1.35",
+//                "trade_id": "713009185277031338",
+//                "trade_parent_id": "713009185275031338"
+//        },
+//        {
+//            "adzone_id": "109645300226",
+//                "adzone_name": "爱分享",
+//                "alimama_rate": "0.00",
+//                "alimama_share_fee": "0.00",
+//                "alipay_total_price": "8.73",
+//                "click_time": "2019-11-13 10:07:55",
+//                "deposit_price": "0.00",
+//                "flow_source": "--",
+//                "income_rate": "1.35",
+//                "item_category_name": "书籍/杂志/报纸",
+//                "item_id": "577492341034",
+//                "item_img": "//img.alicdn.com/bao/uploaded/i4/892006832/O1CN01CiPM7820L6UYai65k_!!0-item_pic.jpg",
+//                "item_link": "http://item.taobao.com/item.htm?id=577492341034",
+//                "item_num": "1",
+//                "item_price": "99.90",
+//                "item_title": "现货速发】 张剑黄皮书大学英语六级真题 2019年12月六级历年真题超详解英语6级真题 可配英语六级听力写作翻译阅读",
+//                "order_type": "天猫",
+//                "pub_id": "54175988",
+//                "pub_share_fee": "0.00",
+//                "pub_share_pre_fee": "0.12",
+//                "pub_share_rate": "100.00",
+//                "refund_tag": "0",
+//                "seller_nick": "强泽图书专营店",
+//                "seller_shop_title": "强泽图书专营店",
+//                "site_id": "1005850130",
+//                "site_name": "爱分享(手机客户端专享)_54175988",
+//                "subsidy_fee": "0.00",
+//                "subsidy_rate": "0.00",
+//                "subsidy_type": "--",
+//                "tb_deposit_time": "--",
+//                "tb_paid_time": "2019-11-13 10:15:09",
+//                "terminal_type": "无线",
+//                "tk_commission_fee_for_media_platform": "0.00",
+//                "tk_commission_pre_fee_for_media_platform": "0.00",
+//                "tk_commission_rate_for_media_platform": "0.00",
+//                "tk_create_time": "2019-11-13 10:15:12",
+//                "tk_deposit_time": "--",
+//                "tk_order_role": "2",
+//                "tk_paid_time": "2019-11-13 10:15:19",
+//                "tk_status": "12",
+//                "tk_total_rate": "1.35",
+//                "total_commission_fee": "0.00",
+//                "total_commission_rate": "1.35",
+//                "trade_id": "713009185276031338",
+//                "trade_parent_id": "713009185275031338"
+//        }
+//    ],
+//        "has_pre": false,
+//            "position_index": "1573611312_QFAyy3ZxCG2|1573611312_QFAyy43JLI2",
+//            "has_next": false,
+//            "page_no": 1,
+//            "page_size": 20,
+//            "msg": "获取成功"
+//    }
+    public Order orderDetailsGet(String endTime,String startTime) {//ORDER_DETAILS
+        try {
+            Order order=new Order();
+//            GoodsInfo goodsInfo=new GoodsInfo();
+            String orderDetails = String.format(ORDER_DETAILS, apkey,endTime,startTime,tbname);
+            String orderInfo = clientUtil.executeGet(orderDetails);
+
+            Map resultMap = (Map) parser.readAsObject(orderInfo, Map.class);//resultMap是所有参数
+            if (resultMap==null){//如果resultMap为空，一般情况下不可能为空
+                return null;
+            }
+            String code=(String) resultMap.get("code");
+            if(!"200".equals(code)){
+                return null;
+            }
+            List<GoodsInfo> goodsInfoList=(List<GoodsInfo>) resultMap.get("data");
+
+            Boolean has_pre=(Boolean) resultMap.get("has_pre");
+            String position_index=(String) resultMap.get("position_index");
+            Boolean has_next=(Boolean) resultMap.get("has_next");
+            Integer page_no=(Integer) resultMap.get("page_no");
+            Integer page_size=(Integer) resultMap.get("page_size");
+            String msg=(String) resultMap.get("msg");
+            order.setData(goodsInfoList);
+            order.setHas_pre(has_pre);
+            order.setPosition_index(position_index);
+            order.setHas_next(has_next);
+            order.setPage_no(page_no);
+            order.setPage_size(page_size);
+            order.setMsg(msg);
+            return order;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }

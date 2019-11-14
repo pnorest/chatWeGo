@@ -1,4 +1,4 @@
-package cn.taobao.vo;
+package cn.taobao.entity.item;
 
 /**
  * @ClassName ItemInfo
