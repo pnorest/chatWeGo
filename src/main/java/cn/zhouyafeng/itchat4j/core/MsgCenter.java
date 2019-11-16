@@ -1,14 +1,18 @@
 package cn.zhouyafeng.itchat4j.core;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cn.taobao.entity.study.Study;
 import cn.taobao.robot.wx.Robot2;
 import cn.taobao.entity.item.TaoBaoResult;
+import cn.taobao.service.study.StudyService;
 import com.joe.http.client.IHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +26,10 @@ import cn.zhouyafeng.itchat4j.face.IMsgHandlerFace;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgCodeEnum;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
 import cn.zhouyafeng.itchat4j.utils.tools.CommonTools;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 /**
  * 消息处理中心
@@ -31,8 +39,19 @@ import cn.zhouyafeng.itchat4j.utils.tools.CommonTools;
  * @version 1.0
  *
  */
+@Component
 public class MsgCenter {
 	private static Logger LOG = LoggerFactory.getLogger(MsgCenter.class);
+
+	private static StudyService studyService;
+
+	@Autowired
+	public MsgCenter(StudyService studyService) {
+		MsgCenter.studyService = studyService;
+	}
+
+
+
 
 	private static Core core = Core.getInstance();
 
@@ -131,7 +150,7 @@ public class MsgCenter {
 	 */
 	public static void handleMsg(IMsgHandlerFace msgHandler) {
 		try {
-
+//			StudyService studyService=new StudyService();
 			while (true) {
 				if (core.getMsgList().size() > 0 && core.getMsgList().get(0).getContent() != null) {
 					if (core.getMsgList().get(0).getContent().length() > 0) {
@@ -145,7 +164,44 @@ public class MsgCenter {
 								  String regex = "\\w{11}";//淘宝口令匹配，也会匹配到订单号 ，故应该先匹配订单号
 								  String content = msg.getContent();
 								  String TAO_TOKEN = getMatchers(regex, content);
-								  if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {
+								  if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {//没有匹配到淘口令时
+//								  	String[] str={"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
+								  	ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"));
+								  	if(msg.getContent().equals("资料")){
+								  		StringBuilder stringBuilder=new StringBuilder();
+										if (studyService==null){
+											System.out.println("studyService空");
+										}
+										List<Study> studyList=studyService.findStudyInfoList();
+										if (studyList==null){
+											System.out.println("空");
+										}
+										for (Study study:studyList){
+											Integer id=study.getId();
+											String name=study.getName();//资料名称
+											String url=study.getUrl();//资料链接
+											String pass=study.getPass();//资料密码
+											stringBuilder.append(id.toString()).append(":").append(name).append(";\n");
+										}
+										MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
+									}
+									  if(arrayList.contains(msg.getContent())){
+										  StringBuilder stringBuilder=new StringBuilder();
+										  List<Study> studyList=studyService.findStudyInfo(msg.getContent());
+										  Study study=studyList.get(0);//取第一行
+										  Integer id=study.getId();
+										  String name=study.getName();//资料名称
+										  String url=study.getUrl();//资料链接
+										  String pass=study.getPass();//资料密码
+										  stringBuilder.append(id).append(":").append(name).append(";\n").append("链接：").append(url).append(";     密码： ").append(pass).append("\n").append("链接请速保存——机器人资料共享功能");
+										  MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
+									  }
+
+
+//									  findStudyInfo
+
+
+
 									  //当群消息没有匹配到出淘口令时
 								  } else {
 									  String taoToken = "￥" + TAO_TOKEN + "￥";
@@ -183,7 +239,7 @@ public class MsgCenter {
 											  }
 											  String returnPrice = df.format(returnNumber);
 
-											  str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(couponPrice).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,群友们以后可根据购物车商品自主查券省钱噢,以后可以支撑更多功能,欢迎广大群友提意见");
+											  str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(couponPrice).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,后续将上线更多功能,只为本群小仙女提供服务。");
 
 										  } else {
 											  Double returnNumber = priceNumber * (rateNumber / 100) * 0.8;//返约 返佣大约多少  返佣率一般为0.06  然后抽取0.2
@@ -191,7 +247,7 @@ public class MsgCenter {
 												  returnNumber = 0.0;
 											  }
 											  String returnPrice = df.format(returnNumber);
-											  str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(priceNumber).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,群友们以后可根据购物车商品自主查券省钱噢,以后可以支撑更多功能,欢迎广大群友提意见");
+											  str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(priceNumber).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,后续将上线更多功能,只为本群小仙女提供服务。");
 										  }
 
 
@@ -254,7 +310,7 @@ public class MsgCenter {
 													}
 													String returnPrice=df.format(returnNumber);
 
-													str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(couponPrice).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,群友们以后可根据购物车商品自主查券省钱噢,以后可以支撑更多功能,欢迎广大群友提意见");
+													str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(couponPrice).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,后续将上线更多功能,只为本群小仙女提供服务。");
 
 												}else {
 													Double   returnNumber=priceNumber*(rateNumber/100)*0.8;//返约 返佣大约多少  返佣率一般为0.06  然后抽取0.2
@@ -262,7 +318,7 @@ public class MsgCenter {
 														returnNumber=0.0;
 													}
 													String returnPrice=df.format(returnNumber);
-													str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(priceNumber).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,群友们以后可根据购物车商品自主查券省钱噢,以后可以支撑更多功能,欢迎广大群友提意见");
+													str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(priceNumber).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,后续将上线更多功能,只为本群小仙女提供服务。");
 												}
 
 

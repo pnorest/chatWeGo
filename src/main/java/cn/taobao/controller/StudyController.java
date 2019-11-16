@@ -25,8 +25,59 @@ public class StudyController {
     //代支付订单返回信息记录
     @RequestMapping("/findStudyInfo")
     public List<Study> findStudyInfo(){
-        return studyService.findStudyInfo();
+        return studyService.findStudyInfoList();
     }
 
+//    [
+//    {
+//        "id": 2,
+//            "name": "普通话资料",
+//            "pass": "iakt",
+//            "url": "https://pan.baidu.com/s/1mOoo9LfCaBZ_DBR0UGv_QA",
+//            "status": 0
+//    },
+//    {
+//        "id": 3,
+//            "name": "四级资料",
+//            "pass": "79n3",
+//            "url": "https://pan.baidu.com/s/1FmBbQHYiY0Cxbr8HgVxJJg ",
+//            "status": 0
+//    },
+//    {
+//        "id": 4,
+//            "name": "六级资料",
+//            "pass": "a5a2",
+//            "url": "https://pan.baidu.com/s/1dwQQjIsIohz2FRJx63p65A",
+//            "status": 0
+//    },
+//    {
+//        "id": 5,
+//            "name": "教师资格证小学",
+//            "pass": "6Z32",
+//            "url": "https://pan.baidu.com/s/1BlWT_w9mx5AeXvFey75azA",
+//            "status": 0
+//    },
+//    {
+//        "id": 6,
+//            "name": "教师资格证中学",
+//            "pass": "BHEY",
+//            "url": "https://pan.baidu.com/s/1QYBirVytcIkIArtjNgpROQ",
+//            "status": 0
+//    },
+//    {
+//        "id": 7,
+//            "name": "计算机二级",
+//            "pass": "52pj",
+//            "url": "https://pan.baidu.com/s/17yVH8xcOJtCDyOaWlC0OeQ",
+//            "status": 0
+//    },
+//    {
+//        "id": 8,
+//            "name": "会计初级",
+//            "pass": null,
+//            "url": "http://www.cuipixiong.com/forum.php?mod=viewthread&tid=249",
+//            "status": 0
+//    }
+//]
 
 }
