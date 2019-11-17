@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.taobao.mapper.order.OrderMapper">
+
+
+    <resultMap id="BaseResultMap" type="cn.taobao.entity.order.OrderInfo">
+        <id column="Id" jdbcType="INTEGER" property="id" />
+        <result column="adzone_id" jdbcType="VARCHAR" property="adzoneId" />
+        <result column="adzone_name" jdbcType="VARCHAR" property="adzoneName" />
+        <result column="alimama_rate" jdbcType="VARCHAR" property="alimamaRate" />
+        <result column="alimama_share_fee" jdbcType="VARCHAR" property="alimamaShareFee" />
+        <result column="alipay_total_price" jdbcType="VARCHAR" property="alipayTotalPrice" />
+        <result column="click_time" jdbcType="VARCHAR" property="clickTime" />
+        <result column="deposit_price" jdbcType="VARCHAR" property="depositPrice" />
+        <result column="flow_source" jdbcType="VARCHAR" property="flowSource" />
+        <result column="income_rate" jdbcType="VARCHAR" property="incomeRate" />
+        <result column="item_category_name" jdbcType="VARCHAR" property="itemCategoryName" />
+        <result column="item_id" jdbcType="VARCHAR" property="itemId" />
+        <result column="item_img" jdbcType="VARCHAR" property="itemImg" />
+        <result column="item_link" jdbcType="VARCHAR" property="itemLink" />
+        <result column="item_num" jdbcType="VARCHAR" property="itemNum" />
+        <result column="item_price" jdbcType="VARCHAR" property="itemPrice" />
+        <result column="item_title" jdbcType="VARCHAR" property="itemTitle" />
+        <result column="order_type" jdbcType="VARCHAR" property="orderType" />
+        <result column="pub_id" jdbcType="VARCHAR" property="pubId" />
+        <result column="pub_share_fee" jdbcType="VARCHAR" property="pubShareFee" />
+        <result column="pub_share_pre_fee" jdbcType="VARCHAR" property="pubSharePreFee" />
+        <result column="pub_share_rate" jdbcType="VARCHAR" property="pubShareRate" />
+        <result column="refund_tag" jdbcType="VARCHAR" property="refundTag" />
+        <result column="seller_nick" jdbcType="VARCHAR" property="sellerNick" />
+        <result column="seller_shop_title" jdbcType="VARCHAR" property="sellerShopTitle" />
+        <result column="site_id" jdbcType="VARCHAR" property="siteId" />
+
+        <result column="site_name" jdbcType="VARCHAR" property="siteName" />
+        <result column="subsidy_fee" jdbcType="VARCHAR" property="subsidyFee" />
+        <result column="subsidy_rate" jdbcType="VARCHAR" property="subsidyRate" />
+        <result column="subsidy_type" jdbcType="VARCHAR" property="subsidyType" />
+        <result column="tb_deposit_time" jdbcType="VARCHAR" property="tbDepositTime" />
+        <result column="tb_paid_time" jdbcType="VARCHAR" property="tbPaidTime" />
+        <result column="terminal_type" jdbcType="VARCHAR" property="terminalType" />
+        <result column="tk_commission_fee_for_media_platform" jdbcType="VARCHAR" property="tkCommissionFeeForMediaPlatform" />
+        <result column="tk_commission_pre_fee_for_media_platform" jdbcType="VARCHAR" property="tkCommissionPreFeeForMediaPlatform" />
+        <result column="tk_commission_rate_for_media_platform" jdbcType="VARCHAR" property="tkCommissionRateForMediaPlatform" />
+        <result column="tk_create_time" jdbcType="VARCHAR" property="tkCreateTime" />
+        <result column="tk_deposit_time" jdbcType="VARCHAR" property="tkDepositTime" />
+
+        <result column="tk_order_role" jdbcType="VARCHAR" property="tkOrderRole" />
+        <result column="tk_paid_time" jdbcType="VARCHAR" property="tkPaidTime" />
+        <result column="tk_status" jdbcType="VARCHAR" property="tkStatus" />
+        <result column="tk_total_rate" jdbcType="VARCHAR" property="tkTotalRate" />
+        <result column="total_commission_fee" jdbcType="VARCHAR" property="totalCommissionFee" />
+        <result column="total_commission_rate" jdbcType="VARCHAR" property="totalCommissionRate" />
+        <result column="trade_id" jdbcType="VARCHAR" property="tradeId" />
+        <result column="trade_parent_id" jdbcType="VARCHAR" property="tradeParentId" />
+
+        <result column="order_status" jdbcType="VARCHAR" property="orderStatus" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    </resultMap>
+
+
+    <select id="findExistGoodsInfoList" resultType="java.lang.String">
+           select trade_id from goods_info
+    </select>
+
+
+
+
+
+
+
+</mapper>

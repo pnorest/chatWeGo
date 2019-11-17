@@ -1,13 +1,14 @@
 package cn.taobao.robot.wx;
 
+import cn.taobao.entity.Result;
 import cn.taobao.robot.dto.LoginEvent;
 import cn.taobao.robot.tbk.Goods;
 import cn.taobao.robot.tbk.Link;
 import cn.taobao.robot.tbk.SearchResult;
 import cn.taobao.entity.item.ItemInfo;
 import cn.taobao.entity.item.TaoBaoResult;
-import cn.taobao.entity.oder.GoodsInfo;
-import cn.taobao.entity.oder.Order;
+import cn.taobao.entity.order.OrderInfo;
+import cn.taobao.entity.order.Order;
 import com.joe.http.IHttpClientUtil;
 import com.joe.http.client.IHttpClient;
 import com.joe.utils.concurrent.ThreadUtil;
@@ -15,6 +16,7 @@ import com.joe.utils.parse.json.JsonParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -25,15 +27,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
 /**
- * @ClassName Robot2
+ * @ClassName RobotService
  * @Description TODO
  * @Author Pnorest
  * @Date 2019/11/6 10:36
  * @Version 1.0
  **/
-
-public class Robot2 {
-    protected static final Logger logger = LoggerFactory.getLogger(Robot2.class);
+@Service
+public class RobotService {
+    protected static final Logger logger = LoggerFactory.getLogger(RobotService.class);
 
 
     private  String tbname="happy月儿弯弯";
@@ -75,17 +77,20 @@ public class Robot2 {
 
     private static final String FIND_INFO ="https://api.open.21ds.cn/apiv2/getitemgyurl?apkey=%s&itemid=%s&pid=%s&tbname=%s&tpwd=1&extsearch=1&shorturl=1&hasiteminfo=1";
 
+    //亲，订单开始时间至订单结束时间的时间段是208分钟，时间段日常要求不超过3个小时，但如618、双11、年货节等大促期间预估时间段不可超过20分钟，超过会提示错误，调用时请务必注意时间段的选择，以保证亲能正常调用！
     private static final String ORDER_DETAILS="https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=%s&end_time=%s&start_time=%s&tbname=%s";
 
-    //网络请求客户端
-    protected IHttpClientUtil clientUtil ;
 
     protected IHttpClient client;
-    public Robot2(IHttpClient client){
+    //网络请求客户端
+    protected IHttpClientUtil clientUtil =new IHttpClientUtil(client);
 
-        this.client = client;
-        this.clientUtil = new IHttpClientUtil(this.client);
-    }
+
+//    public RobotService(IHttpClient client){
+//
+//        this.client = client;
+//        this.clientUtil = new IHttpClientUtil(this.client);
+//    }
 
 
 
@@ -328,6 +333,7 @@ public class Robot2 {
 
 
 
+
     /**
      * 二维码状态检查结果
      */
@@ -478,7 +484,7 @@ public class Robot2 {
 
     /**
      * @param
-     * @return 使用喵有券使用商品id查询商品优惠信息和淘口令
+     * @return 喵有券,使用tbname查询订单信息
      */
 
 //    {
@@ -586,23 +592,28 @@ public class Robot2 {
 //            "page_size": 20,
 //            "msg": "获取成功"
 //    }
-    public Order orderDetailsGet(String endTime,String startTime) {//ORDER_DETAILS
+
+
+    public Result orderDetailsGet(String startTime, String endTime) {//ORDER_DETAILS
+        //亲，订单开始时间至订单结束时间的时间段是208分钟，时间段日常要求不超过3个小时，但如618、双11、年货节等大促期间预估时间段不可超过20分钟，超过会提示错误，调用时请务必注意时间段的选择，以保证亲能正常调用！
+        //设置每五分钟调一次接口，并把数据返回到数据库
         try {
             Order order=new Order();
-//            GoodsInfo goodsInfo=new GoodsInfo();
+//            OrderInfo goodsInfo=new OrderInfo();
             String orderDetails = String.format(ORDER_DETAILS, apkey,endTime,startTime,tbname);
+            orderDetails=orderDetails.replaceAll(" ", "%20");
+            System.out.println("orderDetails"+orderDetails);
             String orderInfo = clientUtil.executeGet(orderDetails);
 
             Map resultMap = (Map) parser.readAsObject(orderInfo, Map.class);//resultMap是所有参数
             if (resultMap==null){//如果resultMap为空，一般情况下不可能为空
-                return null;
+                new Result(Result.CODE.SUCCESS.getCode(),"resultMap为空，远程访问订单链接有问题");
             }
-            String code=(String) resultMap.get("code");
-            if(!"200".equals(code)){
-                return null;
+            Integer code=(Integer) resultMap.get("code");
+            if(!"200".equals(code.toString())){//如果code不等于200，依然返回空
+                new Result(Result.CODE.SUCCESS.getCode(),"code不为200，无订单数据或其他原因");
             }
-            List<GoodsInfo> goodsInfoList=(List<GoodsInfo>) resultMap.get("data");
-
+            List<OrderInfo> goodsInfoList=(List<OrderInfo>) resultMap.get("data");
             Boolean has_pre=(Boolean) resultMap.get("has_pre");
             String position_index=(String) resultMap.get("position_index");
             Boolean has_next=(Boolean) resultMap.get("has_next");
@@ -616,11 +627,12 @@ public class Robot2 {
             order.setPage_no(page_no);
             order.setPage_size(page_size);
             order.setMsg(msg);
-            return order;
+            return new Result(Result.CODE.SUCCESS.getCode(),"订单信息",order);
         }catch (Exception e){
             e.printStackTrace();
+            return new Result(Result.CODE.FAIL.getCode(),"订单接口查询报错");
         }
-        return null;
+
     }
 
 

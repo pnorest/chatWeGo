@@ -22,10 +22,17 @@ public class StudyController {
     @Autowired
     private StudyService studyService;
 
+
+    @RequestMapping("/findStudyInfoList")
+    public List<Study> findStudyInfoList(){
+        return studyService.findStudyInfoList();
+    }
+
+
     //代支付订单返回信息记录
     @RequestMapping("/findStudyInfo")
-    public List<Study> findStudyInfo(){
-        return studyService.findStudyInfoList();
+    public List<Study> findStudyInfo(String id){
+        return studyService.findStudyInfo(id);
     }
 
 //    [
