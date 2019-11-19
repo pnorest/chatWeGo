@@ -59,8 +59,228 @@
 
 
     <select id="findExistGoodsInfoList" resultType="java.lang.String">
-           select trade_id from goods_info
+           select trade_id from orders_info
     </select>
+
+
+
+
+    <insert id="addGoodsInfo" >
+        insert INTO orders_info (
+                    adzone_id,
+                    adzone_name,
+                    alimama_rate,
+                    alimama_share_fee,
+                    alipay_total_price,
+                    click_time,
+                    deposit_price,
+                    flow_source,
+                    income_rate,
+                    item_category_name,
+                    item_id,
+                    item_img,
+                    item_link,
+                    item_num,
+                    item_price,
+                    item_title,
+                    order_type,
+                    pub_id,
+                    pub_share_fee,
+                    pub_share_pre_fee,
+                    pub_share_rate,
+                    refund_tag,
+                    seller_nick,
+                    seller_shop_title,
+                    site_id,
+                    site_name,
+                    subsidy_fee,
+                    subsidy_rate,
+                    subsidy_type,
+                    tb_deposit_time,
+                    tb_paid_time,
+                    terminal_type,
+                    tk_commission_fee_for_media_platform,
+                    tk_commission_pre_fee_for_media_platform,
+                    tk_commission_rate_for_media_platform,
+                    tk_create_time,
+                    tk_deposit_time,
+                    tk_order_role,
+                    tk_paid_time,
+                    tk_status,
+                    tk_total_rate,
+                    total_commission_fee,
+                    total_commission_rate,
+                    trade_id,
+                    trade_parent_id,
+                    order_status,
+                    order_create_time
+                    )VALUES(
+                    #{adzone_id},
+                    #{adzone_name},
+                    #{alimama_rate},
+                    #{alimama_share_fee},
+                    #{alipay_total_price},
+                    #{click_time},
+                    #{deposit_price},
+                    #{flow_source},
+                    #{income_rate},
+                    #{item_category_name},
+                    #{item_id},
+                    #{item_img},
+                    #{item_link},
+                    #{item_num},
+                    #{item_price},
+                    #{item_title},
+                    #{order_type},
+                    #{pub_id},
+                    #{pub_share_fee},
+                    #{pub_share_pre_fee},
+                    #{pub_share_rate},
+                    #{refund_tag},
+                    #{seller_nick},
+                    #{seller_shop_title},
+                    #{site_id},
+                    #{site_name},
+                    #{subsidy_fee},
+                    #{subsidy_rate},
+                    #{subsidy_type},
+                    #{tb_deposit_time},
+                    #{tb_paid_time},
+                    #{terminal_type},
+                    #{tk_commission_fee_for_media_platform},
+                    #{tk_commission_pre_fee_for_media_platform},
+                    #{tk_commission_rate_for_media_platform},
+                    #{tk_create_time},
+                    #{tk_deposit_time},
+                    #{tk_order_role},
+                    #{tk_paid_time},
+                    #{tk_status},
+                    #{tk_total_rate},
+                    #{total_commission_fee},
+                    #{total_commission_rate},
+                    #{trade_id},
+                    #{trade_parent_id},
+                    0,
+                    NOW()
+                    )
+    </insert>
+
+
+
+
+    <update id="updateGoodsInfoStatus">
+                 update orders_info set
+                        adzone_id=#{adzone_id},
+                        adzone_name=#{adzone_name},
+                        alimama_rate=#{alimama_rate},
+                        alimama_share_fee=#{alimama_share_fee},
+                        alipay_total_price=#{alipay_total_price},
+                        click_time=#{click_time},
+                        deposit_price=#{deposit_price},
+                        flow_source=#{flow_source},
+                        income_rate=#{income_rate},
+                        item_category_name=#{item_category_name},
+                        item_id=#{item_id},
+                        item_img=#{item_img},
+                        item_link=#{item_link},
+                        item_num=#{item_num},
+                        item_price=#{item_price},
+                        item_title=#{item_title},
+                        order_type=#{order_type},
+                        pub_id=#{pub_id},
+                        pub_share_fee=#{pub_share_fee},
+                        pub_share_pre_fee=#{pub_share_pre_fee},
+                        pub_share_rate=#{pub_share_rate},
+                        refund_tag=#{refund_tag},
+                        seller_nick=#{seller_nick},
+                        seller_shop_title=#{seller_shop_title},
+                        site_id=#{site_id},
+                        site_name=#{site_name},
+                        subsidy_fee=#{subsidy_fee},
+                        subsidy_rate=#{subsidy_rate},
+                        subsidy_type=#{subsidy_type},
+                        tb_deposit_time=#{tb_deposit_time},
+                        tb_paid_time=#{tb_paid_time},
+                        terminal_type=#{terminal_type},
+                        tk_commission_fee_for_media_platform=#{tk_commission_fee_for_media_platform},
+                        tk_commission_pre_fee_for_media_platform=#{tk_commission_pre_fee_for_media_platform},
+                        tk_commission_rate_for_media_platform=#{tk_commission_rate_for_media_platform},
+                        tk_create_time=#{tk_create_time},
+                        tk_deposit_time=#{tk_deposit_time},
+                        tk_order_role=#{tk_order_role},
+                        tk_paid_time=#{tk_paid_time},
+                        tk_status=#{tk_status},
+                        tk_total_rate=#{tk_total_rate},
+                        total_commission_fee=#{total_commission_fee},
+                        total_commission_rate=#{total_commission_rate},
+                        trade_id=#{trade_id},
+                        trade_parent_id=#{trade_parent_id},
+                        order_update_time=now()
+                        where trade_id=#{trade_id}
+
+    </update>
+
+
+    <update id="BalanceGoodsInfo">
+                 update orders_info set
+                        order_balance_time=now()
+                        where trade_id=#{trade_id}
+
+    </update>
+
+
+    <select id="oderQueryByParentId" resultType="cn.taobao.entity.order.OrderInfo">
+        select * from orders_info where trade_parent_id=#{trade_parent_id}
+    </select>
+
+
+    <select id="validOrderNum" resultType="cn.taobao.entity.order.OrderInfo">
+        select * from orders_info where trade_parent_id=#{trade_parent_id} limit 1
+    </select>
+
+
+    <select id="checkFirstOrder" resultType="cn.taobao.entity.order.UserOrder">
+        select * from user_order where user_remark_name=#{remarkName} limit 1
+    </select>
+
+
+    <select id="hasBindOrders" resultType="cn.taobao.entity.order.UserOrder">
+        select * from user_order
+    </select>
+
+
+
+
+    <insert id="bindUserAndOrder">
+        insert into user_order(
+        user_remark_name,
+        user_sex,
+        user_signature,
+        trade_id,
+        trade_parent_id,
+        create_time,
+        order_status
+        )values
+        <foreach collection="userOrderList" item="userOrder" index="index" separator=",">
+            (
+            #{userOrder.user_remark_name},
+            #{userOrder.user_sex},
+            #{userOrder.user_signature},
+            #{userOrder.trade_id},
+            #{userOrder.trade_parent_id},
+            now(),
+            0
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="selectUserOrder" resultType="cn.taobao.entity.order.UserOrder">
+        select * from user_order where user_remark_name=#{remarkName} limit 1
+    </select>
+
+
+
 
 
 

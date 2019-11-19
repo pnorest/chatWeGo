@@ -9,6 +9,7 @@ import cn.taobao.entity.item.ItemInfo;
 import cn.taobao.entity.item.TaoBaoResult;
 import cn.taobao.entity.order.OrderInfo;
 import cn.taobao.entity.order.Order;
+import com.alibaba.fastjson.JSON;
 import com.joe.http.IHttpClientUtil;
 import com.joe.http.client.IHttpClient;
 import com.joe.utils.concurrent.ThreadUtil;
@@ -600,20 +601,22 @@ public class RobotService {
         try {
             Order order=new Order();
 //            OrderInfo goodsInfo=new OrderInfo();
+            startTime = URLEncoder.encode(startTime, "UTF-8");
+            endTime = URLEncoder.encode(endTime, "UTF-8");
             String orderDetails = String.format(ORDER_DETAILS, apkey,endTime,startTime,tbname);
-            orderDetails=orderDetails.replaceAll(" ", "%20");
             System.out.println("orderDetails"+orderDetails);
+            //https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=dd8fa81a-bb23-5026-254a-1f146e46f08d&end_time=2019-11-16 18:28:22&start_time=2019-11-16 17:00:22&tbname=happy月儿弯弯
             String orderInfo = clientUtil.executeGet(orderDetails);
 
             Map resultMap = (Map) parser.readAsObject(orderInfo, Map.class);//resultMap是所有参数
             if (resultMap==null){//如果resultMap为空，一般情况下不可能为空
-                new Result(Result.CODE.SUCCESS.getCode(),"resultMap为空，远程访问订单链接有问题");
+                return new Result(Result.CODE.SUCCESS.getCode(),"resultMap为空，远程访问订单链接有问题");
             }
             Integer code=(Integer) resultMap.get("code");
             if(!"200".equals(code.toString())){//如果code不等于200，依然返回空
-                new Result(Result.CODE.SUCCESS.getCode(),"code不为200，无订单数据或其他原因");
+                return new Result(Result.CODE.SUCCESS.getCode(),"code不为200，无订单数据或其他原因");
             }
-            List<OrderInfo> goodsInfoList=(List<OrderInfo>) resultMap.get("data");
+            List<OrderInfo> goodsInfoList = JSON.parseArray(JSON.toJSONString(resultMap.get("data")), OrderInfo.class);
             Boolean has_pre=(Boolean) resultMap.get("has_pre");
             String position_index=(String) resultMap.get("position_index");
             Boolean has_next=(Boolean) resultMap.get("has_next");
@@ -630,6 +633,7 @@ public class RobotService {
             return new Result(Result.CODE.SUCCESS.getCode(),"订单信息",order);
         }catch (Exception e){
             e.printStackTrace();
+            //Illegal character in query at index 69: https://api.open.21ds.cn/apiv2/tbkorderdetailsget?end_time=2019-11-16 18:28:22&start_time=2019-11-16 17:00:22&tbname=happy月儿弯弯&apkey=dd8fa81a-bb23-5026-254a-1f146e46f08d
             return new Result(Result.CODE.FAIL.getCode(),"订单接口查询报错");
         }
 

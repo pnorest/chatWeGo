@@ -2,16 +2,20 @@ package cn.zhouyafeng.itchat4j.core;
 
 import cn.taobao.entity.Result;
 import cn.taobao.entity.item.TaoBaoResult;
+import cn.taobao.entity.order.OrderInfo;
+import cn.taobao.entity.order.UserOrder;
 import cn.taobao.entity.study.Study;
 import cn.taobao.robot.wx.RobotService;
 import cn.taobao.service.order.OrderService;
 import cn.taobao.service.study.StudyService;
 import cn.zhouyafeng.itchat4j.api.MessageTools;
 import cn.zhouyafeng.itchat4j.beans.BaseMsg;
+import cn.zhouyafeng.itchat4j.beans.Contact;
 import cn.zhouyafeng.itchat4j.face.IMsgHandlerFace;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgCodeEnum;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
 import cn.zhouyafeng.itchat4j.utils.tools.CommonTools;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.joe.http.client.IHttpClient;
@@ -177,36 +181,71 @@ public class MsgCenter {
                             }
                         }
                         else
-                        {//如果是个人消息  可以根据好友的id和备注确定好友信息并做出响应
-                            if (msg.getType() != null) {//Map<String, JSONObject> map = core.getUserInfoMap();//from:  @e05e8f2a16601011ca445d627964c8b6095e9ca908f7f490c2e271bf3dc683a7  //to：   @d25de719d498705e3fbb321ce0276bc2bb3c217b2dacba14c7439094efefe294
+                        {//如果是个人消息
+                            if (msg.getType() != null) {
+                                String fromUserName=msg.getFromUserName();//@52e109067156338bd344f2a4ba5e4bfa8a5afd54655638f918546e3102e8e6fe
                                 try {
                                     if (msg.getType().equals(MsgTypeEnum.TEXT.getType())) {//先匹配订单号，再匹配淘口令
                                         String content = msg.getContent();
-                                        String ORDER_NUM = getMatchers(orderRegex, content);//先匹配订单号
-                                        if (!ORDER_NUM.equals("")||ORDER_NUM!=""){//如果没匹配到订单号，则走淘口令的检测
-                                            String remarkName="pnorest";
-                                            Result validOrderResult=orderService.validOrderNum(ORDER_NUM);//判断有效订单
-                                            if(validOrderResult.getCode()==0)//如果为有效订单号
+                                        String trade_parent_id = getMatchers(orderRegex, content);//先匹配订单号
+                                        if (!trade_parent_id.equals("")){//如果没匹配到订单号，则走淘口令的检测
+                                            //匹配到订单号，走订单的逻辑
+                                            String lastSix=trade_parent_id.substring(12,18);
+                                            List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
+                                            Contact senMsgContact=new Contact();
+                                            for(Contact contact:contactList){//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+                                                String userName=contact.getUserName();
+                                                if(userName.equals(fromUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
+                                                    String remarkName=contact.getRemarkName();
+                                                    System.out.println("发消息的人为："+remarkName);//发消息的人为：薛娟小号
+                                                    senMsgContact.setRemarkName(remarkName);
+                                                    senMsgContact.setNickName(contact.getNickName());
+                                                    senMsgContact.setSignature(contact.getSignature());
+                                                    senMsgContact.setSex(contact.getSex());
+                                                    break;
+                                                }
+                                                //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+                                            }
+                                            String remarkName=senMsgContact.getRemarkName();//得到备注名称
+                                            List<OrderInfo> orderInfoList=orderService.validOrderNum(trade_parent_id);//判断有效订单
+                                            if(orderInfoList.size()>0)//如果为有效订单号
                                             {
-                                                Result checkFirstOrderResult=orderService.checkFirstOrder(remarkName,ORDER_NUM);//先判断是否为该好友的第一个订单号
-                                                System.out.println("是否为该好友的第一个订单号:"+checkFirstOrderResult.getMessage());
-                                                if(checkFirstOrderResult.getCode()==0){//如果为第一个订单且与之前数据无冲突
-                                                    Result bindPeopleAndOrderResult=orderService.bindPeopleAndOrder(remarkName,ORDER_NUM);//则绑定人和订单关系
-                                                    System.out.println("绑定人和订单关系:"+bindPeopleAndOrderResult.getMessage());
-                                                }else {//如果好友与订单号已绑定
-                                                    //则判断订单号后6位是否与已绑定订单号一致
-                                                    String lastSixNum=ORDER_NUM.substring(11,17);
-                                                    Result lastSixNumFromMysql=orderService.selectLastSixNum(remarkName,ORDER_NUM);
-                                                    if(lastSixNumFromMysql.equals(lastSixNum)){
-                                                        // 若一致，先查看数据库有没有此订单数据，人和订单信息对应的上不，若对应上，则返回订单信息
-                                                        // 数据库没有此订单数据，则插入数据，该订单为此好友的订单,返回订单具体信息
-                                                        Result bindPeopleAndOrderResult=orderService.bindPeopleAndOrder(remarkName,ORDER_NUM);
-                                                    }else {//若不一致 则返回用户提示信息
-                                                        //若该订单并非此好友订单或数据库暂时没有改订单信息，则给予提示
+                                                UserOrder isFirstOrder=orderService.checkFirstOrder(remarkName);//先判断是否为该好友的第一个订单号
+                                                if (isFirstOrder==null){//如果为第一个订单(因为第一个订单，所以后台返回空)
+                                                    //需判断这个订单跟以前的订单数据是否冲突后再绑定人和订单
+                                                    //如果这个订单后6位数与其他绑定的订单后6位数不重复=》则绑定该订单
+                                                    List<UserOrder> hasBindOrders=orderService.hasBindOrders();
+                                                    UserOrder userOrderContains=new UserOrder();
+                                                    if (hasBindOrders.size()>0){//如果绑定表中有数据（刚开始要放个数据在表中）
+                                                        for(UserOrder userOrder:hasBindOrders){
+                                                            if(userOrder.getTrade_id().substring(12,18).equals(lastSix)){
+                                                                userOrderContains.setTrade_id(userOrder.getTrade_id());//如果这个订单后6位已被其他人绑定
+                                                                break;
+                                                            }
+                                                        }
                                                     }
+                                                    if (userOrderContains.getTrade_id()==null){//这里需要测试，是否为空的情况(测试通过)
+                                                        //若绑定表中无此订单数据，则绑定该订单
+                                                        orderService.bindUserAndOrder(senMsgContact,orderInfoList);//则绑定人和订单关系
+                                                        MessageTools.sendMsgById("第一次绑定订单成功："+trade_parent_id, core.getMsgList().get(0).getFromUserName());
+                                                    }else {//若有尾号6位数的订单，则给用户提示，该订单号有异议，请联系管理员
+                                                        MessageTools.sendMsgById("此订单有异议，请联系管理员,单号："+trade_parent_id, core.getMsgList().get(0).getFromUserName());
+                                                    }
+
+                                                }
+                                                else {//如果不为该好友的第一个订单 则提示已经绑定过订单，且绑定账号与此订单号校验无误，无需操作 （isFirstOrder有值，根据它判断）
+                                                    String lastNum=isFirstOrder.getTrade_id().substring(12,18);
+                                                    if(lastNum.equals(lastSix)){//订单号后6位是否与已绑定订单号一致，一致则提示账号已绑定订单，无需操作，不一致则提示，订单号与被绑定数据不一致，请联系管理员
+                                                        //订单号后6位与已绑定订单号一致，则绑定
+                                                        MessageTools.sendMsgById("账号与订单已进行过关联，无需操作", core.getMsgList().get(0).getFromUserName());
+                                                    }else {//若好友输入订单号与绑定订单号不一致则提示
+                                                        MessageTools.sendMsgById("订单号与已绑定订单号不一致，请联系管理员", core.getMsgList().get(0).getFromUserName());
+                                                    }
+
                                                 }
                                             }else {
                                                 //如果为无效订单号或未同步数据的号，则返回提示
+                                                MessageTools.sendMsgById("数据暂未同步或无效订单号，请半小时后再试"+trade_parent_id, core.getMsgList().get(0).getFromUserName());
                                             }
 
                                         }else
