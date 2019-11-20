@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -202,7 +204,6 @@ public class MsgCenter {
                                                     senMsgContact.setNickName(contact.getNickName());
                                                     senMsgContact.setSignature(contact.getSignature());
                                                     senMsgContact.setSex(contact.getSex());
-                                                    break;
                                                 }
                                                 //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
                                             }
@@ -239,13 +240,13 @@ public class MsgCenter {
                                                         //订单号后6位与已绑定订单号一致，则绑定
                                                         MessageTools.sendMsgById("账号与订单已进行过关联，无需操作", core.getMsgList().get(0).getFromUserName());
                                                     }else {//若好友输入订单号与绑定订单号不一致则提示
-                                                        MessageTools.sendMsgById("订单号与已绑定订单号不一致，请联系管理员", core.getMsgList().get(0).getFromUserName());
+                                                        MessageTools.sendMsgById("订单号与已绑定订单号不一致，请联系管理员。单号："+trade_parent_id, core.getMsgList().get(0).getFromUserName());
                                                     }
 
                                                 }
                                             }else {
                                                 //如果为无效订单号或未同步数据的号，则返回提示
-                                                MessageTools.sendMsgById("数据暂未同步或无效订单号，请半小时后再试"+trade_parent_id, core.getMsgList().get(0).getFromUserName());
+                                                MessageTools.sendMsgById("订单数据暂未同步，请5分钟后再试", core.getMsgList().get(0).getFromUserName());
                                             }
 
                                         }else
@@ -300,7 +301,7 @@ public class MsgCenter {
 //        RobotService robot2 = new RobotService(client);
         Map searchMap = robotService.convertLink(taoToken);//转取淘口令，得到click_url  商品id num_iid
         if (searchMap == null) {
-            MessageTools.sendMsgById("本商品无优惠券噢", core.getMsgList().get(0).getFromUserName());
+            MessageTools.sendMsgById("此商品无相关信息噢", core.getMsgList().get(0).getFromUserName());
         } else {
             String num_iid = (String) searchMap.get("num_iid");
             TaoBaoResult taoBaoResult = robotService.findInfo(num_iid);//通过商品id得到该商品的具体信息，佣金比例，价格和自己的二合一淘口令
@@ -312,8 +313,7 @@ public class MsgCenter {
 
             Double priceNumber = Double.valueOf(price);//原价
             Double rateNumber = Double.valueOf(rate);//15% 以结算价格算佣金
-            DecimalFormat df = new DecimalFormat(".##");
-
+//            DecimalFormat df = new DecimalFormat(".##");
             if (taoBaoResult.isHas_coupon()) {
                 String coupon = taoBaoResult.getYouhuiquan();//优惠大小
 
@@ -321,21 +321,24 @@ public class MsgCenter {
 
                 Double couponPrice = priceNumber - couponNumber;//券后价
 
-                Double returnNumber = couponPrice * (rateNumber / 100) * 0.8;//返约 返佣大约多少  返佣率一般为0.06  然后抽取0.2
+                Double returnNumber = couponPrice * (rateNumber / 100) * 0.75;//返约 返佣大约多少  返佣率一般为0.65  我们返0.75 然后抽取0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
                 }
-                String returnPrice = df.format(returnNumber);
-
-                str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(couponPrice).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,后续将上线更多功能,只为本群小仙女提供服务。");
+//                String returnPrice = df.format(returnNumber);
+                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
+                double returnPrice=bg.doubleValue();
+                str.append(title).append("\n").append("原   价: ").append(priceNumber).append(" ￥\n").append("券   后: ").append(couponPrice).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
 
             } else {
-                Double returnNumber = priceNumber * (rateNumber / 100) * 0.8;//返约 返佣大约多少  返佣率一般为0.06  然后抽取0.2
+                Double returnNumber = priceNumber * (rateNumber / 100) * 0.75;//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
                 }
-                String returnPrice = df.format(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(priceNumber).append(" 元 \n").append("券后价: ").append(priceNumber).append(" 元 \n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,后续将上线更多功能,只为本群小仙女提供服务。");
+//                String returnPrice = df.format(bg.doubleValue());
+                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
+                double returnPrice = bg.doubleValue();
+                str.append(title).append("\n").append("原   价: ").append(priceNumber).append(" ￥\n").append("券   后: ").append(priceNumber).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
             }
             MessageTools.sendMsgById(str.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -344,8 +347,8 @@ public class MsgCenter {
 
 
     private static void dealResource(BaseMsg msg){//没有匹配到淘口令时,处理资料信息
-        ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"));
-        if (msg.getContent().equals("资料")) {
+        ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("四级资料", "六级资料", "普通话考试", "计算机二级", "教师资格证小学", "教师资格证中学", "会计初级", "会计中级", "注册会计", "公务员考试", "考研规划", "考研数学", "考研英语", "证券从业资格", "计算机学习"));
+        if (msg.getContent().equals("资料共享")) {
             StringBuilder stringBuilder = new StringBuilder();
             if (studyService == null) {
                 System.out.println("studyService空");
@@ -359,7 +362,33 @@ public class MsgCenter {
                 String name = study.getName();//资料名称
                 String url = study.getUrl();//资料链接
                 String pass = study.getPass();//资料密码
-                stringBuilder.append(id.toString()).append(":").append(name).append(";\n");
+                stringBuilder.append(id).append(".").append(name).append("\n");
+            }
+            stringBuilder.append("------------------------\n").append("发送资料<名称>获取噢");
+            MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
+        }
+        if (msg.getContent().equals("帮助")) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("------系统提示------\n").append("发送“帮助”查看相关指令\n").append("发送“提现”提取当前余额\n").append("发送“个人信息”查看订单\n").append("发送“资料共享”查看资料\n").append("----------------------------------\n").append("更多功能会放入指令中噢");
+            MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
+        }
+        if (msg.getContent().equals("提现")) {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if(msg.isGroupMsg()){//如果是群消息
+                stringBuilder.append("本指令不支持群消息，请添加robot后发送指令");
+            }else {//如果是个人
+                stringBuilder.append("支持提现");
+            }
+            MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
+        }
+
+        if (msg.getContent().equals("个人信息")) {
+            StringBuilder stringBuilder = new StringBuilder();
+            if(msg.isGroupMsg()){//如果是群消息
+                stringBuilder.append("本指令不支持群消息，请添加robot后发送指令");
+            }else {//如果是个人
+                stringBuilder.append("支持查询个人信息");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -371,7 +400,7 @@ public class MsgCenter {
             String name = study.getName();//资料名称
             String url = study.getUrl();//资料链接
             String pass = study.getPass();//资料密码
-            stringBuilder.append(id).append(":").append(name).append(";\n").append("链接：").append(url).append(";     密码： ").append(pass).append("\n").append("链接请速保存——机器人资料共享功能");
+            stringBuilder.append(id).append(":").append(name).append(";\n").append("链接：").append(url).append(";     密码： ").append(pass).append("\n").append("链接请快速保存以免失效噢");
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
     }

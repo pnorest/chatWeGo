@@ -7,6 +7,6 @@
     </select>
 
     <select id="findStudyInfo"  resultType="cn.taobao.entity.study.Study">
-        select * from study where id=#{id}
+        select * from study where name=#{name}
     </select>
 </mapper>

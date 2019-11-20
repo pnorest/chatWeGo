@@ -31,8 +31,8 @@ public class StudyController {
 
     //代支付订单返回信息记录
     @RequestMapping("/findStudyInfo")
-    public List<Study> findStudyInfo(String id){
-        return studyService.findStudyInfo(id);
+    public List<Study> findStudyInfo(String name){
+        return studyService.findStudyInfo(name);
     }
 
 //    [

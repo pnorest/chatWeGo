@@ -20,10 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
@@ -79,7 +76,10 @@ public class RobotService {
     private static final String FIND_INFO ="https://api.open.21ds.cn/apiv2/getitemgyurl?apkey=%s&itemid=%s&pid=%s&tbname=%s&tpwd=1&extsearch=1&shorturl=1&hasiteminfo=1";
 
     //亲，订单开始时间至订单结束时间的时间段是208分钟，时间段日常要求不超过3个小时，但如618、双11、年货节等大促期间预估时间段不可超过20分钟，超过会提示错误，调用时请务必注意时间段的选择，以保证亲能正常调用！
-    private static final String ORDER_DETAILS="https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=%s&end_time=%s&start_time=%s&tbname=%s";
+    private static final String ORDER_DETAILS="https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=%s&end_time=%s&start_time=%s&tbname=%s&page_no=%d&page_size=%d";
+
+    private static Integer page_no=1;
+    private static Integer page_size=100;
 
 
     protected IHttpClient client;
@@ -603,7 +603,7 @@ public class RobotService {
 //            OrderInfo goodsInfo=new OrderInfo();
             startTime = URLEncoder.encode(startTime, "UTF-8");
             endTime = URLEncoder.encode(endTime, "UTF-8");
-            String orderDetails = String.format(ORDER_DETAILS, apkey,endTime,startTime,tbname);
+            String orderDetails = String.format(ORDER_DETAILS, apkey,endTime,startTime,tbname,page_no,page_size);
             System.out.println("orderDetails"+orderDetails);
             //https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=dd8fa81a-bb23-5026-254a-1f146e46f08d&end_time=2019-11-16 18:28:22&start_time=2019-11-16 17:00:22&tbname=happy月儿弯弯
             String orderInfo = clientUtil.executeGet(orderDetails);
@@ -616,6 +616,7 @@ public class RobotService {
             if(!"200".equals(code.toString())){//如果code不等于200，依然返回空
                 return new Result(Result.CODE.SUCCESS.getCode(),"code不为200，无订单数据或其他原因");
             }
+//            List<OrderInfo> goodsFinalInfoList= new ArrayList<>();//把page_size设置为100应该没有问题
             List<OrderInfo> goodsInfoList = JSON.parseArray(JSON.toJSONString(resultMap.get("data")), OrderInfo.class);
             Boolean has_pre=(Boolean) resultMap.get("has_pre");
             String position_index=(String) resultMap.get("position_index");
@@ -623,6 +624,11 @@ public class RobotService {
             Integer page_no=(Integer) resultMap.get("page_no");
             Integer page_size=(Integer) resultMap.get("page_size");
             String msg=(String) resultMap.get("msg");
+//            if(has_next){
+//                goodsFinalInfoList.addAll(goodsInfoList);//把第i页数据放入列表中
+//                page_no++;
+//                orderDetailsGet(startTime, endTime);
+//            }
             order.setData(goodsInfoList);
             order.setHas_pre(has_pre);
             order.setPosition_index(position_index);

@@ -21,8 +21,8 @@ public class StudyService {
     private StudyMapper studyMapper;
 
 
-    public List<Study> findStudyInfo(String id) {
-        return studyMapper.findStudyInfo(id);
+    public List<Study> findStudyInfo(String name) {
+        return studyMapper.findStudyInfo(name);
     }
 
     public List<Study> findStudyInfoList() {

@@ -10,5 +10,5 @@ public interface StudyMapper {
 
     List<Study> findStudyInfoList();
 
-    List<Study> findStudyInfo(String id);
+    List<Study> findStudyInfo(String name);
 }

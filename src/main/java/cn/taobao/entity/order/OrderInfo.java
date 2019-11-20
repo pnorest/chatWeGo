@@ -59,6 +59,7 @@ public class OrderInfo {//订单接口中的商品信息
 
     private Date   order_create_time;//订单创建时间
     private Date   order_update_time;//订单更新时间
+    private String order_balance_fee;
     private Date   order_balance_time;
     private String order_status;//订单状态
 
@@ -460,5 +461,13 @@ public class OrderInfo {//订单接口中的商品信息
 
     public void setOrder_balance_time(Date order_balance_time) {
         this.order_balance_time = order_balance_time;
+    }
+
+    public String getOrder_balance_fee() {
+        return order_balance_fee;
+    }
+
+    public void setOrder_balance_fee(String order_balance_fee) {
+        this.order_balance_fee = order_balance_fee;
     }
 }

@@ -46,45 +46,45 @@ public class OrderController {
 
 
 
-    //定时查询订单数据，并存储到mysql
-//    @Scheduled(cron = "0 0/5 * * * ?")
-//    public void orderDumps(){
-//        try {
-//            //http://wsd.591hufu.com/taokelianmeng/318.html
-////            1、每1-5分钟查询前20分钟的订单：这一步主要是发现客户领券后下单，第一时间保存，微信机器人常用这一步发现客户订单。
-////            但是这一步可能因为阿里官网数据延迟，导致有的订单因延迟而没有查到，出现漏单现象。需要第二步复查。
-//            String endTime="2019-11-16 18:28:22";
-//            String startTime="2019-11-16 17:00:22";
-////          String endTime= DateUtil.getCurrentDateTimeString();//"2019-11-17 13:28:22"
-////          String startTime=DateUtil.getTwtMinAgoDateTimeString();//"2019-11-17 13:28:22"
-//            Result result=robotService.orderDetailsGet(startTime,endTime);
-//            logger.info("result："+result.getMessage()+"data："+result.getData().toString());
-//            dealOrders(result);
-////            Order order=(Order)result.getData();
-////            if (order==null){
-////                logger.info("此时间段无定单信息");
-////            }
-////            List<OrderInfo> orderList=order.getData();
-////            List<String> existGoodsInfoList=orderService.findExistGoodsInfoList();
-////            if(existGoodsInfoList.size()<1){//size=0 不为空
-////                return;
-////            }
-////            for(OrderInfo orderInfo: orderList){
-////                String trade_id=orderInfo.getTrade_id();
-////                if(existGoodsInfoList.contains(trade_id)){//如果数据库中存在该订单信息则更新（只根据trade_id更新，不做新增操作）
-////                    orderService.updateGoodsInfoStatus(orderInfo);
-////                    //orderService.addGoodsInfo(orderInfo);
-////                }else {
-////                    //如果数据库中没有该订单信息，则直接新增
-////                    orderService.addGoodsInfo(orderInfo);
-////                }
-////            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            //java.util.LinkedHashMap cannot be cast to cn.taobao.entity.order.OrderInfo
-//        }
-//    }
-//
+    //    定时查询订单数据，并存储到mysql
+    @Scheduled(cron = "0 0/5 * * * ?")
+    public void orderDumps(){
+        try {
+            //http://wsd.591hufu.com/taokelianmeng/318.html
+//            1、每1-5分钟查询前20分钟的订单：这一步主要是发现客户领券后下单，第一时间保存，微信机器人常用这一步发现客户订单。
+//            但是这一步可能因为阿里官网数据延迟，导致有的订单因延迟而没有查到，出现漏单现象。需要第二步复查。
+    //            String endTime="2019-11-16 18:28:22";
+    //            String startTime="2019-11-16 17:00:22";
+                  String endTime= DateUtil.getCurrentDateTimeString();//"2019-11-17 13:28:22"
+                  String startTime=DateUtil.getTwtMinAgoDateTimeString();//"2019-11-17 13:28:22"
+                  Result result=robotService.orderDetailsGet(startTime,endTime);
+                  logger.info("result："+result.getMessage()+"data："+result.getData());
+                  dealOrders(result);
+//            Order order=(Order)result.getData();
+//            if (order==null){
+//                logger.info("此时间段无定单信息");
+//            }
+//            List<OrderInfo> orderList=order.getData();
+//            List<String> existGoodsInfoList=orderService.findExistGoodsInfoList();
+//            if(existGoodsInfoList.size()<1){//size=0 不为空
+//                return;
+//            }
+//            for(OrderInfo orderInfo: orderList){
+//                String trade_id=orderInfo.getTrade_id();
+//                if(existGoodsInfoList.contains(trade_id)){//如果数据库中存在该订单信息则更新（只根据trade_id更新，不做新增操作）
+//                    orderService.updateGoodsInfoStatus(orderInfo);
+//                    //orderService.addGoodsInfo(orderInfo);
+//                }else {
+//                    //如果数据库中没有该订单信息，则直接新增
+//                    orderService.addGoodsInfo(orderInfo);
+//                }
+//            }
+        }catch (Exception e){
+            e.printStackTrace();
+            //java.util.LinkedHashMap cannot be cast to cn.taobao.entity.order.OrderInfo
+        }
+    }
+
 //
 //    @Scheduled(cron = "0 0/30 * * * ?")
 //    public void yesDayOrderCheck(){//这里不太对
@@ -97,7 +97,7 @@ public class OrderController {
 //            for (int i=0;i<dateList.size();i++){//
 //                //            Result result=robotService.orderDetailsGet(startTime,endTime);
 //                Result result = robotService.orderDetailsGet(DateUtil.convertDateToDateString(dateList.get(i)), DateUtil.convertDateToDateString(dateList.get(i+1)));
-//                logger.info("result："+result.getMessage()+"data："+result.getData().toString());
+//                logger.info("result："+result.getMessage()+"data："+result.getData());
 //                dealOrders(result);
 //                Thread.sleep(1000);//休眠一秒钟接着请求接口并更新
 //            }
@@ -123,7 +123,7 @@ public class OrderController {
 //            }
 //            for (int i=0;i<dateList.size();i++){//
 //                Result result = robotService.orderDetailsGet(DateUtil.convertDateToDateString(dateList.get(i)), DateUtil.convertDateToDateString(dateList.get(i+1)));
-//                logger.info("result："+result.getMessage()+"data："+result.getData().toString());
+//                logger.info("result："+result.getMessage()+"data："+result.getData());
 //                dealOrders(result);
 //                Thread.sleep(1000);//休眠一秒钟接着请求接口并更新
 //            }
@@ -136,28 +136,28 @@ public class OrderController {
 //
 //
 //
-//    public void dealOrders(Result result){
-//        Order order=(Order)result.getData();
-//        if (order==null){
-//            logger.info("此时间段无定单信息");
-//        }
-//        List<OrderInfo> orderList=order.getData();
-//        List<String> existGoodsInfoList=orderService.findExistGoodsInfoList();
-//        if(existGoodsInfoList.size()<1){//size=0 不为空
-//            return;
-//        }
-//        for(OrderInfo orderInfo: orderList){
-//            String trade_id=orderInfo.getTrade_id();
-//            if(existGoodsInfoList.contains(trade_id)){//如果数据库中存在该订单信息则更新（逻辑删除后新增）
-//                orderService.updateGoodsInfoStatus(orderInfo);
-//                //orderService.addGoodsInfo(orderInfo);
-//            }else {
-//                //如果数据库中没有该订单信息，则直接新增
-//                orderService.addGoodsInfo(orderInfo);
-//            }
-//        }
-//    }
-//
+    public void dealOrders(Result result){
+        Order order=(Order)result.getData();
+        if (order==null){
+            logger.info("此时间段无定单信息,order为空");
+            return;
+        }
+        List<OrderInfo> orderList=order.getData();
+        List<String> existGoodsInfoList=orderService.findExistGoodsInfoList();
+        if(existGoodsInfoList.size()<1){//size=0 不为空  一般不会这样
+            return;
+        }
+        for(OrderInfo orderInfo: orderList){
+            String trade_id=orderInfo.getTrade_id();
+            if(existGoodsInfoList.contains(trade_id)){//如果数据库中存在该订单信息则更新
+                orderService.updateGoodsInfoStatus(orderInfo);
+            }else {
+                //如果数据库中没有该订单信息，则直接新增
+                orderService.addGoodsInfo(orderInfo);
+            }
+        }
+    }
+
 
 
 
