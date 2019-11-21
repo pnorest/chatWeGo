@@ -174,7 +174,8 @@ public class MsgCenter {
                                     String content = msg.getContent();
                                     String TAO_TOKEN = getMatchers(regex, content);
                                     if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {//没有匹配到淘口令时,处理资料信息
-								  	   dealResource(msg);
+                                       String remark_name="群消息";
+								  	   dealResource(msg,remark_name);
                                     } else {
                                         dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
                                     }
@@ -186,27 +187,27 @@ public class MsgCenter {
                         {//如果是个人消息
                             if (msg.getType() != null) {
                                 String fromUserName=msg.getFromUserName();//@52e109067156338bd344f2a4ba5e4bfa8a5afd54655638f918546e3102e8e6fe
+                                Contact senMsgContact=new Contact();
                                 try {
                                     if (msg.getType().equals(MsgTypeEnum.TEXT.getType())) {//先匹配订单号，再匹配淘口令
                                         String content = msg.getContent();
+                                        List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
+                                        for(Contact contact:contactList){//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+                                            String userName=contact.getUserName();
+                                            if(userName.equals(fromUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
+                                                String remarkName=contact.getRemarkName();
+                                                System.out.println("发消息的人为："+remarkName);//发消息的人为：薛娟小号
+                                                senMsgContact.setRemarkName(remarkName);
+                                                senMsgContact.setNickName(contact.getNickName());
+                                                senMsgContact.setSignature(contact.getSignature());
+                                                senMsgContact.setSex(contact.getSex());
+                                            }
+                                            //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+                                        }
                                         String trade_parent_id = getMatchers(orderRegex, content);//先匹配订单号
                                         if (!trade_parent_id.equals("")){//如果没匹配到订单号，则走淘口令的检测
                                             //匹配到订单号，走订单的逻辑
                                             String lastSix=trade_parent_id.substring(12,18);
-                                            List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
-                                            Contact senMsgContact=new Contact();
-                                            for(Contact contact:contactList){//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
-                                                String userName=contact.getUserName();
-                                                if(userName.equals(fromUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
-                                                    String remarkName=contact.getRemarkName();
-                                                    System.out.println("发消息的人为："+remarkName);//发消息的人为：薛娟小号
-                                                    senMsgContact.setRemarkName(remarkName);
-                                                    senMsgContact.setNickName(contact.getNickName());
-                                                    senMsgContact.setSignature(contact.getSignature());
-                                                    senMsgContact.setSex(contact.getSex());
-                                                }
-                                                //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
-                                            }
                                             String remarkName=senMsgContact.getRemarkName();//得到备注名称
                                             List<OrderInfo> orderInfoList=orderService.validOrderNum(trade_parent_id);//判断有效订单
                                             if(orderInfoList.size()>0)//如果为有效订单号
@@ -253,7 +254,7 @@ public class MsgCenter {
                                         {//如果没匹配到订单号，则走淘口令的检测
                                             String TAO_TOKEN = getMatchers(regex, content);
                                             if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {
-                                                dealResource(msg);//当个人消息没有匹配到淘口令时，处理资料消息
+                                                dealResource(msg,senMsgContact.getRemarkName());//当个人消息没有匹配到淘口令时，处理资料消息
                                             } else {
                                                 dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
                                             }
@@ -321,24 +322,25 @@ public class MsgCenter {
 
                 Double couponPrice = priceNumber - couponNumber;//券后价
 
-                Double returnNumber = couponPrice * (rateNumber / 100) * 0.75;//返约 返佣大约多少  返佣率一般为0.65  我们返0.75 然后抽取0.25
+                Double returnNumber = couponPrice * (rateNumber / 100) * 0.72;//返约 返佣大约多少  返佣率一般为0.65  我们返0.75 然后抽取0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
                 }
 //                String returnPrice = df.format(returnNumber);
-                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
-                double returnPrice=bg.doubleValue();
-                str.append(title).append("\n").append("原   价: ").append(priceNumber).append(" ￥\n").append("券   后: ").append(couponPrice).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
+//                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
+//                double returnPrice=bg.doubleValue();
+                String returnPrice =orderService.formatDouble(returnNumber);
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
 
             } else {
-                Double returnNumber = priceNumber * (rateNumber / 100) * 0.75;//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
+                Double returnNumber = priceNumber * (rateNumber / 100) * 0.72;//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
                 }
 //                String returnPrice = df.format(bg.doubleValue());
-                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
-                double returnPrice = bg.doubleValue();
-                str.append(title).append("\n").append("原   价: ").append(priceNumber).append(" ￥\n").append("券   后: ").append(priceNumber).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
+//                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
+                String returnPrice =orderService.formatDouble(returnNumber);
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
             }
             MessageTools.sendMsgById(str.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -346,7 +348,7 @@ public class MsgCenter {
 
 
 
-    private static void dealResource(BaseMsg msg){//没有匹配到淘口令时,处理资料信息
+    private static void dealResource(BaseMsg msg,String remark_name){//没有匹配到淘口令时,处理资料信息
         ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("四级资料", "六级资料", "普通话考试", "计算机二级", "教师资格证小学", "教师资格证中学", "会计初级", "会计中级", "注册会计", "公务员考试", "考研规划", "考研数学", "考研英语", "证券从业资格", "计算机学习"));
         if (msg.getContent().equals("资料共享")) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -378,7 +380,8 @@ public class MsgCenter {
             if(msg.isGroupMsg()){//如果是群消息
                 stringBuilder.append("本指令不支持群消息，请添加robot后发送指令");
             }else {//如果是个人
-                stringBuilder.append("支持提现");
+               Result result=orderService.balanceByRemarkName(remark_name);
+               stringBuilder.append(result.getMessage()).append(result.getData()).append("\n").append("----------------------------------\n").append("有问题请联系管理员噢");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -388,7 +391,12 @@ public class MsgCenter {
             if(msg.isGroupMsg()){//如果是群消息
                 stringBuilder.append("本指令不支持群消息，请添加robot后发送指令");
             }else {//如果是个人
-                stringBuilder.append("支持查询个人信息");
+                Map<String,Double> map=orderService.userInfo(remark_name);//这里remark_name只可能是好友备注名
+                double hadBalanceFeeReturn=map.get("hadBalanceFeeReturn");
+                double canCashOutFeeReturn=map.get("canCashOutFeeReturn");
+                double predictBalanceFeeReturn=map.get("predictBalanceFeeReturn");
+                ;
+                stringBuilder.append("------个人信息------\n").append("总提现金额：").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥\n").append("----------------------------------\n").append("有问题请联系管理员噢");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }

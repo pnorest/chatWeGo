@@ -1,16 +1,22 @@
 package cn.taobao.service.order;
 
 import cn.taobao.entity.Result;
-import cn.taobao.entity.order.Order;
 import cn.taobao.entity.order.OrderInfo;
 import cn.taobao.entity.order.UserOrder;
+import cn.taobao.entity.order.vo.OrderVo;
 import cn.taobao.mapper.order.OrderMapper;
 import cn.zhouyafeng.itchat4j.beans.Contact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName OrderService
@@ -21,6 +27,7 @@ import java.util.List;
  **/
 @Service
 public class OrderService {
+    private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
 
     @Resource
@@ -35,7 +42,6 @@ public class OrderService {
 
     public UserOrder  checkFirstOrder(String remarkName) {//到这里，这个订单号肯定是个有效订单
         return orderMapper.checkFirstOrder(remarkName);
-
     }
 
 
@@ -78,7 +84,66 @@ public class OrderService {
         orderMapper.bindUserAndOrder(userOrderList);//批量插入需绑定数据
     }
 
-//    public UserOrder selectUserOrder(String remarkName) {
-//        return orderMapper.selectUserOrder(remarkName);
-//    }
+
+    public Result balanceByRemarkName(String remarkName) {//提现，结算方法
+//        List<OrderVo> orderVoList=orderMapper.balanceByRemarkName(remarkName);
+        Map<String, Double> map=userInfo(remarkName);
+        double canCashOutFeeReturn=map.get("canCashOutFeeReturn");
+        String canCashOutFee=formatDouble(canCashOutFeeReturn);
+
+        if (canCashOutFeeReturn<2){//如果可提现金额小于1，则提示用户申请失败，金额>1元时才可以提现
+            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于2元时操作");
+        }
+        //提现成功前，需要把本好友remarkName，对应的tk_status状态为3且order_status=0的订单更新状态，把order_status变为1
+        String lastSix=orderMapper.findLastSixByRemarkName(remarkName);//找到对应好友后6位
+        orderMapper.balanceByLastSix(lastSix);//把订单状态变为结算状态
+        return new Result(Result.CODE.SUCCESS.getCode(),"------申请成功------\n","提现成功,金额"+canCashOutFee+"元，将于24小时内返到您的微信");
+    }
+
+    public Map<String,Double> userInfo(String remarkName){
+        List<OrderVo> orderVoList=orderMapper.userInfo(remarkName);
+        Map<String,Double> map=new HashMap();
+        double predictBalanceFee=0.00;//未收货,预测可提现金额
+        double canCashOutFee=0.00;//可提现金额
+        double hadBalanceFee=0.00;//已提现过的总金额
+        for(OrderVo orderVo:orderVoList){
+            String Pub_share_pre_fee=orderVo.getPub_share_pre_fee();
+            double   d   =   Double.parseDouble(Pub_share_pre_fee);
+            if(orderVo.getOrder_status().equals("1")){//状态为1时，为结算过的总金额 当为1但tk_status不为3的状态时，可提现金额需要-d
+                hadBalanceFee=hadBalanceFee+d;
+                if(!"3".equals(orderVo.getTk_status())){//如果tk_status不为3时，说明结算后退货
+                    canCashOutFee=canCashOutFee-d;
+                }
+            }
+            if(orderVo.getTk_status().equals("3")&&orderVo.getOrder_status().equals("0")){//1.可提现金额为状态为3且订单状态未结算的 （这里存在买了退货的问题，需减去结算过但状态为不为3的） //2.未收货佣金（状态为12的）
+               canCashOutFee=canCashOutFee+d;//若状态Tk_status为3说明为收货订单，且Order_status为未结算时，计入可提现金额
+            }
+            if(orderVo.getTk_status().equals("12")){//如果未收货则为待返金额
+                predictBalanceFee=predictBalanceFee+d;
+            }
+        }
+//        BigDecimal bg = new BigDecimal(hadBalanceFee).setScale(2, RoundingMode.DOWN);
+//        BigDecimal bgd = new BigDecimal(canCashOutFee).setScale(2, RoundingMode.DOWN);//这里2块2毛8变成2块2毛7
+//        BigDecimal bgdl = new BigDecimal(predictBalanceFee).setScale(2, RoundingMode.DOWN);
+//        double hadBalanceFeeReturn=Math.floor(hadBalanceFee*100)/100;
+//        double canCashOutFeeReturn=Math.floor(canCashOutFee*100)/100;
+//        double predictBalanceFeeReturn=Math.floor(predictBalanceFee*100)/100;
+//        double hadBalanceFeeReturn=bg.doubleValue();
+//        double canCashOutFeeReturn=bgd.doubleValue();
+//        double predictBalanceFeeReturn=bgdl.doubleValue();
+
+        map.put("hadBalanceFeeReturn",hadBalanceFee*0.72);
+        map.put("canCashOutFeeReturn",canCashOutFee*0.72);
+        map.put("predictBalanceFeeReturn",predictBalanceFee*0.72);
+
+        return map;
+
+    }
+
+
+
+    public   String formatDouble(double d) {
+        return String.format("%.2f", d);
+    }
+
 }

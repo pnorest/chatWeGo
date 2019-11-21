@@ -1,8 +1,10 @@
 package cn.taobao.mapper.order;
 
+import cn.taobao.entity.Result;
 import cn.taobao.entity.order.Order;
 import cn.taobao.entity.order.OrderInfo;
 import cn.taobao.entity.order.UserOrder;
+import cn.taobao.entity.order.vo.OrderVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,5 +31,10 @@ public interface OrderMapper {
 
     List<UserOrder> hasBindOrders();
 
-    UserOrder selectUserOrder(String remarkName);
+
+    List<OrderVo> userInfo(String remarkName);
+
+    String findLastSixByRemarkName(String remarkName);
+
+    void balanceByLastSix(String lastSix);
 }

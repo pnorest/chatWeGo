@@ -225,14 +225,14 @@ public class DateUtil {
 //            throw new Exception("开始时间应该在结束时间之后");
         Long spi = endDate.getTime() - startDate.getTime();//时间戳
 //        Long step = spi / (24 * 60 * 60 * 1000 );// 相隔天数  1小时数（）
-        Long step = (spi) / ( 60 * 60 * 1000*1);// 相隔1小时数
+        Long step = (spi) / ( 60 * 60 * 1000*1/3);// 相隔20分钟
         List<Date> dateList = new ArrayList<Date>();
         dateList.add(endDate);
         for (int i = 1; i <= step; i++) {
 //            dateList.add(new Date(dateList.get(i - 1).getTime()
 //                    - (24 * 60 * 60 * 1000)));// 比上一天减一
             Date date=new Date(dateList.get(i - 1).getTime()
-                    - 60 * 60 * 1000*1);
+                    - 60 * 60 * 1000*1/3);//相隔20分钟
             dateList.add(date);// 比上个半小时减1小时
         }
         dateList.add(startDate);
