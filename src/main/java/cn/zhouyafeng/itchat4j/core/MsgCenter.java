@@ -189,6 +189,25 @@ public class MsgCenter {
                                 String fromUserName=msg.getFromUserName();//@52e109067156338bd344f2a4ba5e4bfa8a5afd54655638f918546e3102e8e6fe
                                 Contact senMsgContact=new Contact();
                                 try {
+//                                    if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
+//                                        StringBuilder msgFirst = new StringBuilder();
+//                                        StringBuilder msgSec = new StringBuilder();
+//                                        msgFirst.append("/:rose 欢迎月儿群小伙伴使用专属机器人 /:rose \n").append("将淘宝的商品分享给我,就能帮您查询隐藏优惠券并进行返利补贴哦!\n").append(
+//                                                "【帮您省钱】:除了领券，每笔购物享受返利补贴噢 /:heart \n").append("回复\"帮助\"了解更多功能哦~~ /:gift");
+//                                        msgSec.append("亲爱的小伙伴你好！新手教程可以参考以下视频，教您如何找券并返利噢~ /:rose，让我们跟着视频教程操作一起摇摆吧！/:handclap");
+//
+//                                        MessageTools.sendMsgById(msgFirst.toString(),//这个不见了
+//                                                core.getMsgList().get(0).getRecommendInfo().getUserName());//core.getMsgList().get(0).getRecommendInfo().getUserName()
+////                                        MessageTools.sendMsgById(msgSec.toString(),
+////                                                core.getMsgList().get(0).getRecommendInfo().getUserName());//core.getMsgList().get(0).getFromUserName()
+//                                        MessageTools.sendMsgById(msgSec.toString(),
+//                                                core.getMsgList().get(0).getFromUserName());//这个发送给了自己
+//                                        String filePath="C:\\Users\\pnorest\\Desktop\\wechatwego\\jiaocheng.mp4";
+//                                        MessageTools.sendFileMsgByUserId(core.getMsgList().get(0).getFromUserName(),filePath);//这个也发送给了自己
+//
+//
+//                                    }
+
                                     if (msg.getType().equals(MsgTypeEnum.TEXT.getType())) {//先匹配订单号，再匹配淘口令
                                         String content = msg.getContent();
                                         List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
@@ -261,6 +280,7 @@ public class MsgCenter {
                                         }
 
                                     }
+
 //                                    dealOtherMsg( msgHandler, msg);
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -366,37 +386,44 @@ public class MsgCenter {
                 String pass = study.getPass();//资料密码
                 stringBuilder.append(id).append(".").append(name).append("\n");
             }
-            stringBuilder.append("------------------------\n").append("发送资料<名称>获取噢");
+            stringBuilder.append("------------------------\n").append("发送资料<名称>获取/:heart");
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
         if (msg.getContent().equals("帮助")) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("------系统提示------\n").append("发送“帮助”查看相关指令\n").append("发送“提现”提取当前余额\n").append("发送“个人信息”查看订单\n").append("发送“资料共享”查看资料\n").append("----------------------------------\n").append("更多功能会放入指令中噢");
+            stringBuilder.append("------系统提示------\n").append("发送“帮助”查看相关指令\n").append("发送“提现”提取当前余额\n").append("发送“个人信息”查看订单\n").append("发送“资料共享”查看资料\n").append("发送“新手教程”学习用法\n").append("----------------------------------\n").append("更多功能会放入指令中噢/:rose");
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
         if (msg.getContent().equals("提现")) {
             StringBuilder stringBuilder = new StringBuilder();
 
             if(msg.isGroupMsg()){//如果是群消息
-                stringBuilder.append("本指令不支持群消息，请添加robot后发送指令");
+                stringBuilder.append("本指令不支持群消息，请添加robot后发送指令/:rose");
             }else {//如果是个人
                Result result=orderService.balanceByRemarkName(remark_name);
-               stringBuilder.append(result.getMessage()).append(result.getData()).append("\n").append("----------------------------------\n").append("有问题请联系管理员噢");
+               stringBuilder.append(result.getMessage()).append(result.getData());
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
+        if (msg.getContent().equals("新手教程")) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("新手教程？抱歉，群主很闲，请尽情的说出你所有的问题，本群不配备任何新手教程，因为我们的梦想是星辰大海，教程都写不完，学习/工作/诗书礼易/宇宙哲学/24史，问就完事儿啦/:rose");
 
+            MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
+        }
         if (msg.getContent().equals("个人信息")) {
             StringBuilder stringBuilder = new StringBuilder();
             if(msg.isGroupMsg()){//如果是群消息
-                stringBuilder.append("本指令不支持群消息，请添加robot后发送指令");
+                stringBuilder.append("本指令不支持群消息，请添加robot后发送指令/:rose");
             }else {//如果是个人
                 Map<String,Double> map=orderService.userInfo(remark_name);//这里remark_name只可能是好友备注名
                 double hadBalanceFeeReturn=map.get("hadBalanceFeeReturn");
                 double canCashOutFeeReturn=map.get("canCashOutFeeReturn");
                 double predictBalanceFeeReturn=map.get("predictBalanceFeeReturn");
-                ;
-                stringBuilder.append("------个人信息------\n").append("总提现金额：").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥\n").append("----------------------------------\n").append("有问题请联系管理员噢");
+                double hadBalanceCount=map.get("hadBalanceCount");
+                double canCashOutCount=map.get("canCashOutCount");
+                double predictBalanceCount=map.get("predictBalanceCount");
+                stringBuilder.append("------个人信息------\n").append("总提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("----------------------------------\n").append("输入“提现”,24小时内获提现红包,有问题请联系管理员噢/:rose");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -408,7 +435,7 @@ public class MsgCenter {
             String name = study.getName();//资料名称
             String url = study.getUrl();//资料链接
             String pass = study.getPass();//资料密码
-            stringBuilder.append(id).append(":").append(name).append(";\n").append("链接：").append(url).append(";     密码： ").append(pass).append("\n").append("链接请快速保存以免失效噢");
+            stringBuilder.append(id).append(":").append(name).append(";\n").append("链接：").append(url).append(";     密码： ").append(pass).append("\n").append("快速保存,失效请联系管理员噢/::D");
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
     }

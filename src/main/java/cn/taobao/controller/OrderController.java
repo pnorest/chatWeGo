@@ -47,9 +47,18 @@ public class OrderController {
     @RequestMapping("/dayDateSplit")
     public void dayDateSplit() {
         try {
-            Date startDate = DateUtil.getYesStartDate();
-            Date endDate = DateUtil.getYesEndDate();
-            List<Date> dateList = DateUtil.dateSplit(startDate, endDate);//得到昨日间隔1个小时的时间段列表，共24段
+            Date YesStartDate = DateUtil.getYesStartDate();//YesStartDate 昨日00:00:00
+            Date YesEndDate = DateUtil.getYesEndDate();//YesEndDate 昨日23:59:59
+            Date YesMonStartDate = DateUtil.getYesMonStartDate();//上个月1号 00:00:00
+            Date YesMonEndDate = DateUtil.getYesEndDate();//上个月最后一天 23:59:59
+            Date TwtMinAgoDate = DateUtil.getTwtMinAgoDate();//20分钟前  Date格式
+            Date TodayStartDate = DateUtil.getTodayStartDate();//今日开始时间 00:00:00
+            //getYesMonStartDate 上个月1号 00:00:00
+            //getYesMonEndDate   上个月最后一天 23:59:59
+            //getTwtMinAgoDateTimeString 20分钟前
+            //getTodayStartDate//今日开始时间 00:00:00
+            //List<Date> dateList = DateUtil.dateSplit(TodayStartDate, TwtMinAgoDate);//得到昨日间隔1个小时的时间段列表，共24段
+            List<Date> dateList = DateUtil.dateSplit(YesMonStartDate, YesEndDate);//得到昨日间隔1个小时的时间段列表，共24段
             for (int i = 0; i < dateList.size(); i++) {//
                 System.out.println("i:" + i + "." + DateUtil.convertDateToDateString(dateList.get(i)));
             }
@@ -173,9 +182,9 @@ public class OrderController {
             logger.info("执行yesDayOrderCheck，检查昨日订单");
 //每天定时查询昨天的订单（1-5分钟查一次，=>这里每半小时更新一次昨日订单信息，每次个时间段按间隔1个小时算）：这一步主要是防止第一步的客户领券没有在20分钟内下单，做复查用。
 //以上两步，目的是告诉用户你已检测到他的订单，结算时不会漏掉，让用户放心即可。
-            Date startDate = DateUtil.getYesStartDate();
-            Date endDate = DateUtil.getYesEndDate();
-            List<Date> dateList = DateUtil.dateSplit(startDate, endDate);//得到昨日间隔20分钟的时间段列表，共72段
+            Date TodayStartDate = DateUtil.getTodayStartDate();
+            Date TwtMinAgoDate = DateUtil.getTwtMinAgoDate();
+            List<Date> dateList = DateUtil.dateSplit(TodayStartDate, TwtMinAgoDate);
             for (int i = 0; i < dateList.size(); i++) {//
                 //这里需要i+1的时间为开始时间
                 if (i+1>=dateList.size()){//若72+1到73，则超过数据了，就return
@@ -191,22 +200,22 @@ public class OrderController {
     }
 
 
-    @Scheduled(cron = "0 0 21 20 * ?")//每月15日凌晨 1点开始
+    @Scheduled(cron = "0 0 1 * * ?")//0 15 10 * * ? 每天凌晨1点
     public void yesMonthOrderCheck() {//每个月20号开始查询上个月订单  每月10号9点15分钟执行任务 ：0 15 9 10 * ?
         try {
             logger.info("执行yesMonthOrderCheck，检查上月订单");
 // 3每个月20-25号，再定时查询上个月的订单：因为20号是淘宝联盟和你结算的时间，这时用户的订单基本固定了，你跟客户结算很安全，可以用3秒1次的频率，查询上个月的订单，再和你的客户结算返利或佣金。
 // 这步查询时，最好直接查询结算过的订单，也就是把参数 query_type 设置为“结算时间 3”，  //            参考：http://wsd.591hufu.com/taokelianmeng/329.html
-            Date startDate = DateUtil.getYesMonStartDate();
-            Date endDate = DateUtil.getYesMonEndDate();
-            List<Date> dateList = DateUtil.dateSplit(startDate, endDate);
+            Date YesMonStartDate = DateUtil.getYesMonStartDate();
+            Date YesEndDate = DateUtil.getYesEndDate();
+            List<Date> dateList = DateUtil.dateSplit(YesMonStartDate, YesEndDate);
             for (int i = 0; i < dateList.size(); i++) {//
                 if (i+1>=dateList.size()){//若72+1到73，则超过数据了，就return
                     return;
                 }
                 Result result = robotService.orderDetailsGet(DateUtil.convertDateToDateString(dateList.get(i + 1)), DateUtil.convertDateToDateString(dateList.get(i)));
                 dealOrders(result);
-                Thread.sleep(3000);//休眠3秒钟接着请求接口并更新
+                Thread.sleep(2000);//休眠3秒钟接着请求接口并更新
             }
         } catch (Exception e) {
             e.printStackTrace();

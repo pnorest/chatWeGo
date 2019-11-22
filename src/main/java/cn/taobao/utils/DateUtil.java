@@ -80,6 +80,19 @@ public class DateUtil {
         return null;
     }
 
+    public static Date getTodayStartDate() {
+        try {
+            Date date = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String s = sdf.format(date);//2019-11-18 11:17:08
+            s=s.substring(0,10)+" 00:00:00";//字符串是对的
+            return sdf.parse(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static Date getYesEndDate() {//yyyy-MM-dd HH:mm:ss
         try {
             Date date = new Date(System.currentTimeMillis()-1000*60*60*24);
@@ -211,6 +224,19 @@ public class DateUtil {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String s = sdf.format(date);
             return s;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    //得到现在时间的前20分钟时间
+    public static Date getTwtMinAgoDate() {
+        try {
+            long currentTime = System.currentTimeMillis() - 20 * 60 * 1000;//当前时间的20分钟之前
+            Date date = new Date(currentTime);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String s = sdf.format(date);
+            return sdf.parse(s);
         } catch (Exception e) {
             e.printStackTrace();
         }
