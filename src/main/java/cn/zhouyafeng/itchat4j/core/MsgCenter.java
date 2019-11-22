@@ -369,7 +369,7 @@ public class MsgCenter {
 
 
     private static void dealResource(BaseMsg msg,String remark_name){//没有匹配到淘口令时,处理资料信息
-        ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("四级资料", "六级资料", "普通话考试", "计算机二级", "教师资格证小学", "教师资格证中学", "会计初级", "会计中级", "注册会计", "公务员考试", "考研规划", "考研数学", "考研英语", "证券从业资格", "计算机学习"));
+        ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("四级资料", "六级资料", "会计初级", "会计中级", "注册会计", "考研规划", "考研资料", "计算机二级", "公务员考试", "普通话考试", "计算机学习", "电子书推荐", "证券从业资格", "教师资格证小学", "教师资格证中学"));
         if (msg.getContent().equals("资料共享")) {
             StringBuilder stringBuilder = new StringBuilder();
             if (studyService == null) {
