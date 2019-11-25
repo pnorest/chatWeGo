@@ -342,25 +342,39 @@ public class MsgCenter {
 
                 Double couponPrice = priceNumber - couponNumber;//券后价
 
-                Double returnNumber = couponPrice * (rateNumber / 100) * 0.72;//返约 返佣大约多少  返佣率一般为0.65  我们返0.75 然后抽取0.25
+                Double returnNumber = couponPrice * (rateNumber / 100);//返约 返佣大约多少  返佣率一般为0.65  我们返0.75 然后抽取0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
+                }
+                if(returnNumber<2){
+                    returnNumber= returnNumber*0.85;
+
+                }
+                if(returnNumber>=2){
+                    returnNumber= returnNumber*0.72;
                 }
 //                String returnPrice = df.format(returnNumber);
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
 //                double returnPrice=bg.doubleValue();
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小伙伴提供服务");
 
             } else {
-                Double returnNumber = priceNumber * (rateNumber / 100) * 0.72;//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
+                Double returnNumber = priceNumber * (rateNumber / 100);//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
+                }
+                if(returnNumber<2){
+                    returnNumber= returnNumber*0.85;
+
+                }
+                if(returnNumber>=2){
+                    returnNumber= returnNumber*0.72;
                 }
 //                String returnPrice = df.format(bg.doubleValue());
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小仙女提供服务");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小伙伴提供服务");
             }
             MessageTools.sendMsgById(str.toString(), core.getMsgList().get(0).getFromUserName());
         }

@@ -92,8 +92,8 @@ public class OrderService {
         double canCashOutCount=map.get("canCashOutCount");
         String canCashOutFee=formatDouble(canCashOutFeeReturn);
 
-        if (canCashOutFeeReturn<2){//如果可提现金额小于1，则提示用户申请失败，金额>1元时才可以提现
-            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于2￥时操作\n"+"----------------------------------\n"+"有问题请联系管理员噢/:rose");
+        if (canCashOutFeeReturn<0.1){//如果可提现金额小于1，则提示用户申请失败，金额>1元时才可以提现
+            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于0.1￥时操作\n"+"----------------------------------\n"+"有问题请联系管理员噢/:rose");
         }
         //提现成功前，需要把本好友remarkName，对应的tk_status状态为3且order_status=0的订单更新状态，把order_status变为1
         String lastSix=orderMapper.findLastSixByRemarkName(remarkName);//找到对应好友后6位
