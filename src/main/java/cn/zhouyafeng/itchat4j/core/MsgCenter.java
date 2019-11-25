@@ -346,35 +346,41 @@ public class MsgCenter {
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
                 }
-                if(returnNumber<2){
+                if(returnNumber<3){
                     returnNumber= returnNumber*0.85;
 
                 }
-                if(returnNumber>=2){
-                    returnNumber= returnNumber*0.72;
+                if(returnNumber>=3 &&returnNumber<10){
+                    returnNumber= returnNumber*0.75;
+                }
+                if(returnNumber>=10){
+                    returnNumber= returnNumber*0.68;
                 }
 //                String returnPrice = df.format(returnNumber);
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
 //                double returnPrice=bg.doubleValue();
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小伙伴提供服务");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。本功能预计返很高,需入群才能使用,只为内部小伙伴提供服务");
 
             } else {
                 Double returnNumber = priceNumber * (rateNumber / 100);//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
                 if (returnNumber <= 0) {
                     returnNumber = 0.0;
                 }
-                if(returnNumber<2){
+                if(returnNumber<3){
                     returnNumber= returnNumber*0.85;
 
                 }
-                if(returnNumber>=2){
-                    returnNumber= returnNumber*0.72;
+                if(returnNumber>=3 &&returnNumber<10){
+                    returnNumber= returnNumber*0.75;
+                }
+                if(returnNumber>=10){
+                    returnNumber= returnNumber*0.68;
                 }
 //                String returnPrice = df.format(bg.doubleValue());
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用,实际返以官方返为准,少部分原因会有偏差,后续功能依然只为本群小伙伴提供服务");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。本功能预计返很高,需入群才能使用,只为内部小伙伴提供服务");
             }
             MessageTools.sendMsgById(str.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -421,7 +427,7 @@ public class MsgCenter {
         }
         if (msg.getContent().equals("新手教程")) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("新手教程？抱歉，群主很闲，请尽情的说出你所有的问题，本群不配备任何新手教程，因为我们的梦想是星辰大海，教程都写不完，学习/工作/诗书礼易/宇宙哲学/24史，问就完事儿啦/:rose");
+            stringBuilder.append("新手教程？抱歉，群主很闲，请尽情的说出你所有的问题，因为我们的梦想是星辰大海，教程都写不完，学习/工作/诗书礼易/宇宙哲学/24史，问就完事儿啦/:rose");
 
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }

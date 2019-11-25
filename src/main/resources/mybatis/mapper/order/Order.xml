@@ -171,6 +171,13 @@
                         where trade_id=#{trade_id}
 
     </update>
+    <update id="updateOrderBalanceFee">
+                 update orders_info set
+                        order_balance_fee=#{order_balance_fee}
+                        where trade_id=#{trade_id}
+
+    </update>
+
 
 
     <select id="oderQueryByParentId" resultType="cn.taobao.entity.order.OrderInfo">

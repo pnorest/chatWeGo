@@ -93,12 +93,12 @@ public class OrderService {
         String canCashOutFee=formatDouble(canCashOutFeeReturn);
 
         if (canCashOutFeeReturn<0.1){//如果可提现金额小于1，则提示用户申请失败，金额>1元时才可以提现
-            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于0.1￥时操作\n"+"----------------------------------\n"+"有问题请联系管理员噢/:rose");
+            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于0.1￥时操作\n"+"----------------------------------\n"+"有相关问题请联系管理员噢/:rose");
         }
         //提现成功前，需要把本好友remarkName，对应的tk_status状态为3且order_status=0的订单更新状态，把order_status变为1
         String lastSix=orderMapper.findLastSixByRemarkName(remarkName);//找到对应好友后6位
         orderMapper.balanceByLastSix(lastSix);//把订单状态变为结算状态
-        return new Result(Result.CODE.SUCCESS.getCode(),"------申请成功------\n","提现金额"+canCashOutFee+"￥，涉及订单数量"+canCashOutCount+"单,将于24小时内发放到您的微信\n"+"----------------------------------\n"+"单笔返超过12￥的订单需在确认收货7天后获得,有问题请联系管理员噢/:rose");
+        return new Result(Result.CODE.SUCCESS.getCode(),"------申请成功------\n","提现金额"+canCashOutFee+"￥，涉及订单数量"+canCashOutCount+"单,将于24小时内发放到您的微信\n"+"----------------------------------\n"+"有相关问题请联系管理员噢/:rose");
     }
 
     public Map<String,Double> userInfo(String remarkName){
@@ -111,21 +111,37 @@ public class OrderService {
         double canCashOutFee=0.00;//可提现金额
         double hadBalanceFee=0.00;//已提现过的总金额
         for(OrderVo orderVo:orderVoList){
-            String Pub_share_pre_fee=orderVo.getPub_share_pre_fee();
-            double   d   =   Double.parseDouble(Pub_share_pre_fee);
+            String Pub_share_pre_fee=orderVo.getPub_share_pre_fee();//待提现金额
+            double   balanceCount   =   Double.parseDouble(Pub_share_pre_fee);
+            if (balanceCount <= 0) {
+                balanceCount = 0.0;
+            }
+            if(balanceCount<3){
+                balanceCount= balanceCount*0.85;
+
+            }
+            if(balanceCount>=3 &&balanceCount<10){
+                balanceCount= balanceCount*0.75;
+            }
+            if(balanceCount>=10){
+                balanceCount= balanceCount*0.68;
+            }
+            //结算金额要更新到对应到订单上
+            orderVo.setOrder_balance_fee(formatDouble(balanceCount));
+            orderMapper.updateOrderBalanceFee(orderVo);
             if(orderVo.getOrder_status().equals("1")){//状态为1时，为结算过的总金额 当为1但tk_status不为3的状态时，可提现金额需要-d
-                hadBalanceFee=hadBalanceFee+d;
+                hadBalanceFee=hadBalanceFee+balanceCount;
                 hadBalanceCount=hadBalanceCount+1;
                 if(!"3".equals(orderVo.getTk_status())){//如果tk_status不为3时，说明结算后退货
-                    canCashOutFee=canCashOutFee-d;
+                    canCashOutFee=canCashOutFee-balanceCount;
                 }
             }
             if(orderVo.getTk_status().equals("3")&&orderVo.getOrder_status().equals("0")){//1.可提现金额为状态为3且订单状态未结算的 （这里存在买了退货的问题，需减去结算过但状态为不为3的） //2.未收货佣金（状态为12的）
-               canCashOutFee=canCashOutFee+d;//若状态Tk_status为3说明为收货订单，且Order_status为未结算时，计入可提现金额
+               canCashOutFee=canCashOutFee+balanceCount;//若状态Tk_status为3说明为收货订单，且Order_status为未结算时，计入可提现金额
                 canCashOutCount=canCashOutCount+1;
             }
             if(orderVo.getTk_status().equals("12")){//如果未收货则为待返金额
-                predictBalanceFee=predictBalanceFee+d;
+                predictBalanceFee=predictBalanceFee+balanceCount;
                 predictBalanceCount=predictBalanceCount+1;
             }
         }
@@ -138,10 +154,23 @@ public class OrderService {
 //        double hadBalanceFeeReturn=bg.doubleValue();
 //        double canCashOutFeeReturn=bgd.doubleValue();
 //        double predictBalanceFeeReturn=bgdl.doubleValue();
+//        if (returnNumber <= 0) {
+//            returnNumber = 0.0;
+//        }
+//        if(returnNumber<2){
+//            returnNumber= returnNumber*0.85;
+//
+//        }
+//        if(returnNumber>=2 &&returnNumber<10){
+//            returnNumber= returnNumber*0.75;
+//        }
+//        if(returnNumber>=10){
+//            returnNumber= returnNumber*0.68;
+//        }
 
-        map.put("hadBalanceFeeReturn",hadBalanceFee*0.72);
-        map.put("canCashOutFeeReturn",canCashOutFee*0.72);
-        map.put("predictBalanceFeeReturn",predictBalanceFee*0.72);
+        map.put("hadBalanceFeeReturn",hadBalanceFee);
+        map.put("canCashOutFeeReturn",canCashOutFee);
+        map.put("predictBalanceFeeReturn",predictBalanceFee);
         map.put("hadBalanceCount",hadBalanceCount);
         map.put("canCashOutCount",canCashOutCount);
         map.put("predictBalanceCount",predictBalanceCount);

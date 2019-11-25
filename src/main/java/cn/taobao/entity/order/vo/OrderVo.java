@@ -17,6 +17,7 @@ public class OrderVo {
     private String tk_create_time;
     private String item_title;
     private String order_status;//0为未结算，1为结算
+    private String order_balance_fee;
 
 
     public String getUser_remark_name() {
@@ -89,5 +90,13 @@ public class OrderVo {
 
     public void setOrder_status(String order_status) {
         this.order_status = order_status;
+    }
+
+    public String getOrder_balance_fee() {
+        return order_balance_fee;
+    }
+
+    public void setOrder_balance_fee(String order_balance_fee) {
+        this.order_balance_fee = order_balance_fee;
     }
 }

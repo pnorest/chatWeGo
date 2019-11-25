@@ -37,4 +37,6 @@ public interface OrderMapper {
     String findLastSixByRemarkName(String remarkName);
 
     void balanceByLastSix(String lastSix);
+
+    void updateOrderBalanceFee(OrderVo orderVo);
 }
