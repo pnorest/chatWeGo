@@ -351,10 +351,10 @@ public class MsgCenter {
 
                 }
                 if(returnNumber>=3 &&returnNumber<10){
-                    returnNumber= returnNumber*0.75;
+                    returnNumber= returnNumber*0.72;
                 }
                 if(returnNumber>=10){
-                    returnNumber= returnNumber*0.68;
+                    returnNumber= returnNumber*0.65;
                 }
 //                String returnPrice = df.format(returnNumber);
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
@@ -372,10 +372,10 @@ public class MsgCenter {
 
                 }
                 if(returnNumber>=3 &&returnNumber<10){
-                    returnNumber= returnNumber*0.75;
+                    returnNumber= returnNumber*0.72;
                 }
                 if(returnNumber>=10){
-                    returnNumber= returnNumber*0.68;
+                    returnNumber= returnNumber*0.65;
                 }
 //                String returnPrice = df.format(bg.doubleValue());
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);

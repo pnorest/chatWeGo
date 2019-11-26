@@ -121,10 +121,10 @@ public class OrderService {
 
             }
             if(balanceCount>=3 &&balanceCount<10){
-                balanceCount= balanceCount*0.75;
+                balanceCount= balanceCount*0.72;
             }
             if(balanceCount>=10){
-                balanceCount= balanceCount*0.68;
+                balanceCount= balanceCount*0.65;
             }
             //结算金额要更新到对应到订单上
             orderVo.setOrder_balance_fee(formatDouble(balanceCount));
