@@ -264,6 +264,11 @@
     </select>
 
 
+    <select id="findxsjc" resultType="java.lang.String">
+        SELECT url from study where `name`="新手教程"
+    </select>
+
+
 
 
 

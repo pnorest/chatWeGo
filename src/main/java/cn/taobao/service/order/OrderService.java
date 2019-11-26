@@ -185,4 +185,7 @@ public class OrderService {
         return String.format("%.2f", d);
     }
 
+    public String findxsjc() {
+        return orderMapper.findxsjc();
+    }
 }

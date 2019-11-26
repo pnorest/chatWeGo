@@ -39,4 +39,6 @@ public interface OrderMapper {
     void balanceByLastSix(String lastSix);
 
     void updateOrderBalanceFee(OrderVo orderVo);
+
+    String findxsjc();
 }

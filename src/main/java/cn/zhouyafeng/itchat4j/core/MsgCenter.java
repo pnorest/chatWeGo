@@ -427,7 +427,8 @@ public class MsgCenter {
         }
         if (msg.getContent().equals("新手教程")) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("新手教程？抱歉，群主很闲，请尽情的说出你所有的问题，因为我们的梦想是星辰大海，教程都写不完，学习/工作/诗书礼易/宇宙哲学/24史，问就完事儿啦/:rose");
+            String url=orderService.findxsjc();
+            stringBuilder.append("新手教程地址，有疑问可找群主咨询噢/:rose").append("\n").append(url);
 
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -443,7 +444,7 @@ public class MsgCenter {
                 double hadBalanceCount=map.get("hadBalanceCount");
                 double canCashOutCount=map.get("canCashOutCount");
                 double predictBalanceCount=map.get("predictBalanceCount");
-                stringBuilder.append("------个人信息------\n").append("总提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("----------------------------------\n").append("输入“提现”,24小时内获提现红包,有问题请联系管理员噢/:rose");
+                stringBuilder.append("------个人信息------\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("已提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("----------------------------------\n").append("输入“提现”,24小时内获提现红包,有问题请联系管理员噢/:rose");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }

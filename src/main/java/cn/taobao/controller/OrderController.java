@@ -192,7 +192,7 @@ public class OrderController {
                 }
                 Result result = robotService.orderDetailsGet(DateUtil.convertDateToDateString(dateList.get(i + 1)), DateUtil.convertDateToDateString(dateList.get(i)));
                 dealOrders(result);
-                Thread.sleep(3000);//休眠3秒钟接着请求接口并更新
+                Thread.sleep(2000);//休眠3秒钟接着请求接口并更新
             }
         } catch (Exception e) {
             e.printStackTrace();
