@@ -166,6 +166,7 @@ public class OrderController {
             logger.info("执行orderDumps，检查前20分钟订单");
             String endTime = DateUtil.getCurrentDateTimeString();//"2019-11-17 13:28:22"
             String startTime = DateUtil.getTwtMinAgoDateTimeString();//"2019-11-17 13:28:22"
+            logger.info("执行时间：startTime"+startTime+"endTime"+endTime);
             Result result = robotService.orderDetailsGet(startTime, endTime);
             logger.info("result：" + result.getMessage() + "data：" + result.getData());
             dealOrders(result);
@@ -176,14 +177,15 @@ public class OrderController {
     }
 
 
-    @Scheduled(cron = "0 0 */1 * * ? ")
+    @Scheduled(cron = "0 0 */1 * * ?")
     public void yesDayOrderCheck() {//每个小时一次吧  0 0 */1 * * ?      半个小时一次吧  0 0/30 * * * ?
         try {
-            logger.info("执行yesDayOrderCheck，检查昨日订单");
+            logger.info("执行yesDayOrderCheck，检查今日至现在的订单");
 //每天定时查询昨天的订单（1-5分钟查一次，=>这里每半小时更新一次昨日订单信息，每次个时间段按间隔1个小时算）：这一步主要是防止第一步的客户领券没有在20分钟内下单，做复查用。
 //以上两步，目的是告诉用户你已检测到他的订单，结算时不会漏掉，让用户放心即可。
             Date TodayStartDate = DateUtil.getTodayStartDate();
             Date TwtMinAgoDate = DateUtil.getTwtMinAgoDate();
+            logger.info("执行时间：TodayStartDate"+TodayStartDate+"TwtMinAgoDate"+TwtMinAgoDate);
             List<Date> dateList = DateUtil.dateSplit(TodayStartDate, TwtMinAgoDate);
             for (int i = 0; i < dateList.size(); i++) {//
                 //这里需要i+1的时间为开始时间
@@ -203,11 +205,12 @@ public class OrderController {
     @Scheduled(cron = "0 0 1 * * ?")//0 15 10 * * ? 每天凌晨1点
     public void yesMonthOrderCheck() {//每个月20号开始查询上个月订单  每月10号9点15分钟执行任务 ：0 15 9 10 * ?
         try {
-            logger.info("执行yesMonthOrderCheck，检查上月订单");
+            logger.info("执行yesMonthOrderCheck，检查上月至昨日订单");
 // 3每个月20-25号，再定时查询上个月的订单：因为20号是淘宝联盟和你结算的时间，这时用户的订单基本固定了，你跟客户结算很安全，可以用3秒1次的频率，查询上个月的订单，再和你的客户结算返利或佣金。
 // 这步查询时，最好直接查询结算过的订单，也就是把参数 query_type 设置为“结算时间 3”，  //            参考：http://wsd.591hufu.com/taokelianmeng/329.html
             Date YesMonStartDate = DateUtil.getYesMonStartDate();
             Date YesEndDate = DateUtil.getYesEndDate();
+            logger.info("执行时间：YesMonStartDate"+YesMonStartDate+"YesEndDate"+YesEndDate);
             List<Date> dateList = DateUtil.dateSplit(YesMonStartDate, YesEndDate);
             for (int i = 0; i < dateList.size(); i++) {//
                 if (i+1>=dateList.size()){//若72+1到73，则超过数据了，就return
@@ -232,15 +235,21 @@ public class OrderController {
         List<OrderInfo> orderList = order.getData();
         List<String> existGoodsInfoList = orderService.findExistGoodsInfoList();
         if (existGoodsInfoList.size() < 1) {//size=0 不为空  一般不会这样
+            logger.info("existGoodsInfoList为空，orderInfo这个表不存在数据");
             return;
+        }
+        if(orderList.size()<1){
+            logger.info("orderList不存在数据");
         }
         for (OrderInfo orderInfo : orderList) {
             String trade_id = orderInfo.getTrade_id();
             if (existGoodsInfoList.contains(trade_id)) {//如果数据库中存在该订单信息则更新
                 orderService.updateGoodsInfoStatus(orderInfo);//这里是对的，不能加break
+                logger.info("更新订单数据"+orderInfo.getTrade_id());
             } else {
                 //如果数据库中没有该订单信息，则直接新增
                 orderService.addGoodsInfo(orderInfo);
+                logger.info("新增订单数据"+orderInfo.getTrade_id());
             }
         }
     }
