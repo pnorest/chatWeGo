@@ -436,7 +436,7 @@ public class MsgCenter {
             StringBuilder stringBuilder = new StringBuilder();
             if(msg.isGroupMsg()){//如果是群消息
                 stringBuilder.append("本指令不支持群消息，请添加robot后发送指令/:rose");
-            }else {//如果是个人消息
+            }else {//如果是个人消息#
 
                 Map<String,Double> map=orderService.userInfo(remark_name);//这里remark_name只可能是好友备注名
                 double hadBalanceFeeReturn=map.get("hadBalanceFeeReturn");
