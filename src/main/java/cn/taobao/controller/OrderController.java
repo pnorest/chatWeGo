@@ -158,9 +158,9 @@ public class OrderController {
 
 
     //    定时查询订单数据，并存储到mysql
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void orderDumps() {
-        try {
+        try {//2分钟查一次
 //            1、每1-5分钟查询前20分钟的订单：这一步主要是发现客户领券后下单，第一时间保存，微信机器人常用这一步发现客户订单。    //            String endTime="2019-11-16 18:28:22";
 //            但是这一步可能因为阿里官网数据延迟，导致有的订单因延迟而没有查到，出现漏单现象。需要第二步复查。 //    //            String startTime="2019-11-16 17:00:22";
             logger.info("执行orderDumps，检查前20分钟订单");
