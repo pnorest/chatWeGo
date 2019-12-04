@@ -149,10 +149,10 @@ public class DateUtil {
     }
 
 
-    //将短时间格式转化为Date yyyy-MM-dd
+    //将短时间格式转化为Date
     public static Date convertStringToDate(String operateDate) {
         try {
-            SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //            ParsePosition parsePosition=new ParsePosition(0);  ,parsePosition
             Date strToDate=simpleDateFormat.parse(operateDate);
             return strToDate;
@@ -163,15 +163,38 @@ public class DateUtil {
     }
 
 
-
-    public static Date getTheDateAfter(String operateDate) {
+    public static String onMinAgo(Date date) {
         try {
 
-            Calendar calendar=Calendar.getInstance();
-            calendar.setTime(convertStringToDate(operateDate));
-            calendar.add(Calendar.DAY_OF_MONTH,1);
-            Date afterDate=calendar.getTime();
-            return  afterDate;
+            date.setTime(date.getTime()- 60*1000);
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public static String onMinAft(Date date) {
+        try {
+            date.setTime(date.getTime()+ 2*60*1000);
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
+
+
+    //将短时间格式转化为Date yyyy-MM-dd
+    public static Date getTheDateAfter(String operateDate) {
+        try {
+            SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd");
+            Date strToDate=simpleDateFormat.parse(operateDate);
+            return strToDate;
         } catch (Exception e) {
             e.printStackTrace();
         }

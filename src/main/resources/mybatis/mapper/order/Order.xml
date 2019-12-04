@@ -260,13 +260,34 @@
 
     <select id="findLastSixByRemarkName" resultType="java.lang.String">
      SELECT SUBSTRING( trade_id, 13 ) as lastSix from user_order WHERE user_remark_name=#{remarkName}
-
     </select>
+
+    <select id="checkOrderStatus" resultType="cn.taobao.entity.order.vo.CheckOrderStatusVo">
+       SELECT
+            a.tb_paid_time AS tk_paid_time,
+            a.tk_status AS tk_status,
+            b.user_remark_name AS user_remark_name,
+            a.trade_id as trade_id,
+            a.item_title as item_title,
+			a.alipay_total_price as alipay_total_price,
+			a.seller_shop_title as seller_shop_title
+
+        FROM
+            orders_info a
+            LEFT JOIN user_order b ON SUBSTRING( a.trade_id, 13 ) = SUBSTRING( b.trade_id, 13 )
+        WHERE
+            tk_status = 12 and b.user_remark_name is not null
+	</select>
 
 
     <select id="findxsjc" resultType="java.lang.String">
         SELECT url from study where `name`="新手教程"
     </select>
+
+
+    <update id="receipt">
+        UPDATE orders_info set tk_status=3 where trade_id=#{trade_id}
+    </update>
 
 
 

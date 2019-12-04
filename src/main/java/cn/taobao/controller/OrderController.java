@@ -3,9 +3,15 @@ package cn.taobao.controller;
 import cn.taobao.entity.Result;
 import cn.taobao.entity.order.OrderInfo;
 import cn.taobao.entity.order.Order;
+import cn.taobao.entity.order.vo.CheckOrderStatusVo;
 import cn.taobao.robot.wx.RobotService;
 import cn.taobao.service.order.OrderService;
 import cn.taobao.utils.DateUtil;
+import cn.zhouyafeng.itchat4j.api.MessageTools;
+import cn.zhouyafeng.itchat4j.beans.Contact;
+import cn.zhouyafeng.itchat4j.core.Core;
+import cn.zhouyafeng.itchat4j.core.MsgCenter;
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +34,8 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
+    private static Core orderCore = Core.getInstance();
+
 
     @Autowired
     private RobotService robotService;
@@ -202,24 +210,46 @@ public class OrderController {
     }
 
 
-    @Scheduled(cron = "0 0 1 * * ?")//0 15 10 * * ? 每天凌晨1点
-    public void yesMonthOrderCheck() {//每个月20号开始查询上个月订单  每月10号9点15分钟执行任务 ：0 15 9 10 * ?
+    @Scheduled(cron = "0 0/3 * * * ?")
+    public void checkOrderStatus() {//检查所有未收货订单状态，3分钟一次？
         try {
-            logger.info("执行yesMonthOrderCheck，检查上月至昨日订单");
-// 3每个月20-25号，再定时查询上个月的订单：因为20号是淘宝联盟和你结算的时间，这时用户的订单基本固定了，你跟客户结算很安全，可以用3秒1次的频率，查询上个月的订单，再和你的客户结算返利或佣金。
-// 这步查询时，最好直接查询结算过的订单，也就是把参数 query_type 设置为“结算时间 3”，  //            参考：http://wsd.591hufu.com/taokelianmeng/329.html
-            Date YesMonStartDate = DateUtil.getYesMonStartDate();
-            Date YesEndDate = DateUtil.getYesEndDate();
-            logger.info("执行时间：YesMonStartDate"+YesMonStartDate+"YesEndDate"+YesEndDate);
-            List<Date> dateList = DateUtil.dateSplit(YesMonStartDate, YesEndDate);
-            for (int i = 0; i < dateList.size(); i++) {//
-                if (i+1>=dateList.size()){//若72+1到73，则超过数据了，就return
-                    return;
-                }
-                Result result = robotService.orderDetailsGet(DateUtil.convertDateToDateString(dateList.get(i + 1)), DateUtil.convertDateToDateString(dateList.get(i)));
-                dealOrders(result);
-                Thread.sleep(2000);//休眠3秒钟接着请求接口并更新
+            logger.info("执行checkOrderStatus，检查所有未收货订单状态");
+            List<CheckOrderStatusVo> orderStatusVoList=orderService.checkOrderStatus();
+            if(orderStatusVoList.size()<1){
+                return;
             }
+            for (CheckOrderStatusVo checkOrderStatusVo:orderStatusVoList){//找到所有未收货的订单
+                String tk_paid_time=checkOrderStatusVo.getTk_paid_time();//该订单下单时间
+                //找到下单时间前后1分钟左右所有的数据
+                Date tk_paid_time_date=DateUtil.convertStringToDate(tk_paid_time);
+                String onMinAgo=DateUtil.onMinAgo(tk_paid_time_date);
+                String onMinAft=DateUtil.onMinAft(tk_paid_time_date);
+                Result result = robotService.orderDetailsGet(onMinAgo, onMinAft);
+                Order order = (Order) result.getData();
+                if (order == null) {
+                    logger.info("checkOrderStatus此时间段无定单信息,order为空");
+                    continue;
+                }
+                List<OrderInfo> orderList = order.getData();
+                if(orderList.size()<1){
+                    logger.info("checkOrderStatus此时间段无定单信息时，orderList不存在数据");
+                    continue;
+                }
+                for(OrderInfo orderInfo:orderList){//这里至少有一条数据
+                    if (checkOrderStatusVo.getTrade_id().equals(orderInfo.getTrade_id())){//如果未收货状态为12的订单匹配到这个时间段的这个订单
+                        if (orderInfo.getTk_status().equals("3")){//如果这个订单状态由12变为确认收货3，则推送给对应小伙伴消息
+                            orderService.receipt(orderInfo.getTrade_id());
+                            logger.info("确认收货，自动更新状态的订单号为："+orderInfo.getTrade_id());
+                            receipt(checkOrderStatusVo);
+                            logger.info("推送消息成功");
+                        }
+                    }//
+                }
+                Thread.sleep(1000);
+            }
+
+//            String remarkName="薛娟小号";
+//            receipt(remarkName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -254,6 +284,69 @@ public class OrderController {
         }
     }
 
+
+
+
+
+    @Scheduled(cron = "0 0 1 * * ?")//0 15 10 * * ? 每天凌晨1点
+    public void yesMonthOrderCheck() {//每个月20号开始查询上个月订单  每月10号9点15分钟执行任务 ：0 15 9 10 * ?
+        try {
+            logger.info("执行yesMonthOrderCheck，检查上月至昨日订单");
+// 3每个月20-25号，再定时查询上个月的订单：因为20号是淘宝联盟和你结算的时间，这时用户的订单基本固定了，你跟客户结算很安全，可以用3秒1次的频率，查询上个月的订单，再和你的客户结算返利或佣金。
+// 这步查询时，最好直接查询结算过的订单，也就是把参数 query_type 设置为“结算时间 3”，  //            参考：http://wsd.591hufu.com/taokelianmeng/329.html
+            Date YesMonStartDate = DateUtil.getYesMonStartDate();
+            Date YesEndDate = DateUtil.getYesEndDate();
+            logger.info("执行时间：YesMonStartDate"+YesMonStartDate+"YesEndDate"+YesEndDate);
+            List<Date> dateList = DateUtil.dateSplit(YesMonStartDate, YesEndDate);
+            for (int i = 0; i < dateList.size(); i++) {//
+                if (i+1>=dateList.size()){//若72+1到73，则超过数据了，就return
+                    return;
+                }
+                Result result = robotService.orderDetailsGet(DateUtil.convertDateToDateString(dateList.get(i + 1)), DateUtil.convertDateToDateString(dateList.get(i)));
+                dealOrders(result);
+                Thread.sleep(2000);//休眠3秒钟接着请求接口并更新
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
+    private void receipt(CheckOrderStatusVo checkOrderStatusVo){//抽离出给某个好友单独发送消息的部分
+        Contact senMsgContact=new Contact();
+        List<Contact> contactList = JSON.parseArray(JSON.toJSONString(orderCore.getContactList()), Contact.class);
+        for(Contact contact:contactList){//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+            String contactRemarkName=contact.getRemarkName();
+            if(checkOrderStatusVo.getUser_remark_name().equals(contactRemarkName)){//使用remarkName匹配到对应的人，fromUserName
+                String userName=contact.getUserName();
+                System.out.println("对应的人的userName为："+userName+",备注名称为"+contactRemarkName);//发消息的人为：薛娟小号
+                senMsgContact.setUserName(userName);
+                senMsgContact.setRemarkName(checkOrderStatusVo.getUser_remark_name());
+            }
+            //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+        }
+        if (senMsgContact.getRemarkName()==null){//senMsgContact里面是否有值
+            return;
+        }
+        MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可以找机器人提现噢/:rose\n"+"订单编号："+checkOrderStatusVo.getTrade_id()+"\n付款金额："+checkOrderStatusVo.getAlipay_total_price()+" ￥\n店铺名称："+checkOrderStatusVo.getSeller_shop_title()+"\n商品信息："+checkOrderStatusVo.getItem_title()+"\n----------------------------------------------"+"\n发送<个人信息>指令可查询所有订单情况/:heart", senMsgContact.getUserName());
+    }
+
+
+
+    private void dealTime(){//抽离出某订单号下单时间的处理
+        String tk_paid_time="2019-11-30 21:53:09";//该订单下单时间
+        //找到下单时间前后1分钟左右所有的数据
+        Date tk_paid_time_date=DateUtil.convertStringToDate(tk_paid_time);
+        String onMinAgo=DateUtil.onMinAgo(tk_paid_time_date);
+        String onMinAft=DateUtil.onMinAft(tk_paid_time_date);//因为上一个处理减了一分钟，这里需要加两分钟
+        System.out.println("onMinAgo"+onMinAgo);
+        System.out.println("onMinAft"+onMinAft);
+
+    }
 
 }
 

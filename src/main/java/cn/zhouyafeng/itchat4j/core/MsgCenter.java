@@ -322,7 +322,7 @@ public class MsgCenter {
 //        RobotService robot2 = new RobotService(client);
         Map searchMap = robotService.convertLink(taoToken);//转取淘口令，得到click_url  商品id num_iid
         if (searchMap == null) {
-            MessageTools.sendMsgById("1", core.getMsgList().get(0).getFromUserName());
+//            MessageTools.sendMsgById("1", core.getMsgList().get(0).getFromUserName());
         } else {
             String num_iid = (String) searchMap.get("num_iid");
             TaoBaoResult taoBaoResult = robotService.findInfo(num_iid);//通过商品id得到该商品的具体信息，佣金比例，价格和自己的二合一淘口令
@@ -360,7 +360,7 @@ public class MsgCenter {
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
 //                double returnPrice=bg.doubleValue();
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("本功能预计返很高,只为内部提供服务,欢迎安利给身边小伙伴噢");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("本功能预计返很高,只为内部提供服务,欢迎安利给身边小伙伴噢/:heart");
 
             } else {
                 Double returnNumber = priceNumber * (rateNumber / 100);//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
@@ -380,7 +380,7 @@ public class MsgCenter {
 //                String returnPrice = df.format(bg.doubleValue());
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("本功能预计返很高,只为内部提供服务,欢迎安利给身边小伙伴噢");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("本功能预计返很高,只为内部提供服务,欢迎安利给身边小伙伴噢/:heart");
             }
             MessageTools.sendMsgById(str.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -445,7 +445,7 @@ public class MsgCenter {
                 double hadBalanceCount=map.get("hadBalanceCount");
                 double canCashOutCount=map.get("canCashOutCount");
                 double predictBalanceCount=map.get("predictBalanceCount");
-                stringBuilder.append("------个人信息------\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("已提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("----------------------------------\n").append("当可提现金额有数值时,输入“提现”,24小时内可获得返现红包。少部分原因会导致返利出现偏差（譬如使用红包、淘金币等）,有问题请联系管理员噢/:rose");
+                stringBuilder.append("------个人信息------\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("已提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("----------------------------------\n").append("可提现金额有值时,输入“提现”,24小时内可获得返现红包。少部分原因会导致返利出现偏差,有问题请联系管理员噢/:rose");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
