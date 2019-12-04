@@ -210,8 +210,8 @@ public class OrderController {
     }
 
 
-    @Scheduled(cron = "0 0/3 * * * ?")
-    public void checkOrderStatus() {//检查所有未收货订单状态，3分钟一次？
+    @Scheduled(cron = "0 0/2 * * * ?")
+    public void checkOrderStatus() {//检查所有未收货订单状态，2分钟一次？
         try {
             logger.info("执行checkOrderStatus，检查所有未收货订单状态");
             List<CheckOrderStatusVo> orderStatusVoList=orderService.checkOrderStatus();
@@ -332,7 +332,7 @@ public class OrderController {
         if (senMsgContact.getRemarkName()==null){//senMsgContact里面是否有值
             return;
         }
-        MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可以找机器人提现噢/:rose\n"+"订单编号："+checkOrderStatusVo.getTrade_id()+"\n付款金额："+checkOrderStatusVo.getAlipay_total_price()+" ￥\n店铺名称："+checkOrderStatusVo.getSeller_shop_title()+"\n商品信息："+checkOrderStatusVo.getItem_title()+"\n----------------------------------------------"+"\n发送<个人信息>指令可查询所有订单情况/:heart", senMsgContact.getUserName());
+        MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可以找机器人提现噢/:rose\n"+"订单编号："+checkOrderStatusVo.getTrade_id()+"\n付款金额："+checkOrderStatusVo.getAlipay_total_price()+" ￥\n店铺名称："+checkOrderStatusVo.getSeller_shop_title()+"\n商品信息："+checkOrderStatusVo.getItem_title()+"\n-----------------------------------------"+"\n发送<个人信息>指令可查询所有订单情况/:heart", senMsgContact.getUserName());
     }
 
 
