@@ -289,6 +289,42 @@
         UPDATE orders_info set tk_status=3 where trade_id=#{trade_id}
     </update>
 
+    <insert id="saveUserInfo">
+
+        insert into user_order(
+        nickName,
+        sex,
+        attrStatus,
+        city,
+        scene,
+        province,
+        content,
+        alias,
+        signature,
+        opCode,
+        qQNum,
+        verifyFlag,
+        ticket,
+        user_name
+        )values
+            (
+            #{nickName},
+            #{sex},
+            #{attrStatus},
+            #{city},
+            #{scene},
+            #{province},
+            #{content},
+            #{alias},
+            #{signature},
+            #{opCode},
+            #{qQNum},
+            #{ticket},
+            #{verifyFlag}
+
+            )
+    </insert>
+
 
 
 

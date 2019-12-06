@@ -6,6 +6,7 @@ import cn.taobao.entity.order.OrderInfo;
 import cn.taobao.entity.order.UserOrder;
 import cn.taobao.entity.order.vo.CheckOrderStatusVo;
 import cn.taobao.entity.order.vo.OrderVo;
+import cn.zhouyafeng.itchat4j.beans.RecommendInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -46,4 +47,6 @@ public interface OrderMapper {
     List<CheckOrderStatusVo> checkOrderStatus();
 
     void receipt(String trade_id);
+
+    void saveUserInfo(RecommendInfo userInfo);
 }

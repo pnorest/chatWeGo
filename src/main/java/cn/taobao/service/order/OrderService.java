@@ -7,6 +7,7 @@ import cn.taobao.entity.order.vo.CheckOrderStatusVo;
 import cn.taobao.entity.order.vo.OrderVo;
 import cn.taobao.mapper.order.OrderMapper;
 import cn.zhouyafeng.itchat4j.beans.Contact;
+import cn.zhouyafeng.itchat4j.beans.RecommendInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -196,5 +197,9 @@ public class OrderService {
 
     public void receipt(String trade_id) {
         orderMapper.receipt(trade_id);
+    }
+
+    public void saveUserInfo(RecommendInfo userInfo) {
+        orderMapper.saveUserInfo(userInfo);
     }
 }

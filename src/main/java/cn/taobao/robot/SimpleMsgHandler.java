@@ -11,6 +11,7 @@ import cn.zhouyafeng.itchat4j.utils.tools.DownloadTools;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +26,8 @@ import java.util.Date;
  */
 public class SimpleMsgHandler implements IMsgHandlerFace {
 	Logger LOG = Logger.getLogger(SimpleMsgHandler.class);
+
+
 
 
 	@Value("${qrPath}")
@@ -105,10 +108,12 @@ public class SimpleMsgHandler implements IMsgHandlerFace {
 	public String verifyAddFriendMsgHandle(BaseMsg msg) {
 		MessageTools.addFriend(msg, true); // 同意好友请求，false为不接受好友请求
 		RecommendInfo recommendInfo = msg.getRecommendInfo();//走的这个
+
 		String nickName = recommendInfo.getNickName();
 		String province = recommendInfo.getProvince();
 		String city = recommendInfo.getCity();
 		String text = nickName + "小伙伴你好,很荣幸与你成为好友/:rose";
+
 		return text;
 	}
 

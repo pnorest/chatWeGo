@@ -166,7 +166,7 @@ public class DateUtil {
     public static String onMinAgo(Date date) {
         try {
 
-            date.setTime(date.getTime()- 3*60*1000);
+            date.setTime(date.getTime()- 5*60*1000);
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,7 +177,7 @@ public class DateUtil {
 
     public static String onMinAft(Date date) {
         try {
-            date.setTime(date.getTime()+ 2*3*60*1000);
+            date.setTime(date.getTime()+ 2*5*60*1000);
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
         } catch (Exception e) {
             e.printStackTrace();

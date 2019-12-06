@@ -11,6 +11,7 @@ import cn.taobao.service.study.StudyService;
 import cn.zhouyafeng.itchat4j.api.MessageTools;
 import cn.zhouyafeng.itchat4j.beans.BaseMsg;
 import cn.zhouyafeng.itchat4j.beans.Contact;
+import cn.zhouyafeng.itchat4j.beans.RecommendInfo;
 import cn.zhouyafeng.itchat4j.face.IMsgHandlerFace;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgCodeEnum;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
@@ -466,6 +467,8 @@ public class MsgCenter {
 private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处理除文本消息以外的其他消息
         if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
                 String result = msgHandler.verifyAddFriendMsgHandle(msg);
+                RecommendInfo userInfo=msg.getRecommendInfo();
+                //orderService.saveUserInfo(userInfo);
                 MessageTools.sendMsgById(result, core.getMsgList().get(0).getRecommendInfo().getUserName());
             }
 //        if (msg.getType().equals(MsgTypeEnum.PIC.getType())) {
