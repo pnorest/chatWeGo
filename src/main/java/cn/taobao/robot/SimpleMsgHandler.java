@@ -108,7 +108,7 @@ public class SimpleMsgHandler implements IMsgHandlerFace {
 		String nickName = recommendInfo.getNickName();
 		String province = recommendInfo.getProvince();
 		String city = recommendInfo.getCity();
-		String text = "月儿群小伙伴" +"的" + nickName + "小伙伴你好， 很高兴与你成为好友！,输入<新手教程>可以查看教程,也可以直接向我提问噢/:rose";
+		String text = nickName + "小伙伴你好,很荣幸与你成为好友/:rose";
 		return text;
 	}
 
