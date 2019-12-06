@@ -220,7 +220,7 @@ public class OrderController {
             }
             for (CheckOrderStatusVo checkOrderStatusVo:orderStatusVoList){//找到所有未收货的订单
                 String tk_paid_time=checkOrderStatusVo.getTk_paid_time();//该订单下单时间
-                //找到下单时间前后1分钟左右所有的数据
+                //找到下单时间前后3分钟左右所有的数据
                 Date tk_paid_time_date=DateUtil.convertStringToDate(tk_paid_time);
                 String onMinAgo=DateUtil.onMinAgo(tk_paid_time_date);
                 String onMinAft=DateUtil.onMinAft(tk_paid_time_date);

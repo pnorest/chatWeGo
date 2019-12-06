@@ -281,7 +281,7 @@ public class MsgCenter {
 
                                     }
 
-//                                    dealOtherMsg( msgHandler, msg);
+                                    dealOtherMsg( msgHandler, msg);//个人消息的处理
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -464,28 +464,32 @@ public class MsgCenter {
 
 
 private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处理除文本消息以外的其他消息
-        if (msg.getType().equals(MsgTypeEnum.PIC.getType())) {
-            String result = msgHandler.picMsgHandle(msg);
-            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
-        } else if (msg.getType().equals(MsgTypeEnum.VOICE.getType())) {
-            String result = msgHandler.voiceMsgHandle(msg);
-            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
-        } else if (msg.getType().equals(MsgTypeEnum.VIEDO.getType())) {
-            String result = msgHandler.viedoMsgHandle(msg);
-            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
-        } else if (msg.getType().equals(MsgTypeEnum.NAMECARD.getType())) {
-            String result = msgHandler.nameCardMsgHandle(msg);
-            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
-        } else if (msg.getType().equals(MsgTypeEnum.SYS.getType())) { // 系统消息
-            msgHandler.sysMsgHandle(msg);
-        } else if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
-            String result = msgHandler.verifyAddFriendMsgHandle(msg);
-            MessageTools.sendMsgById(result,
-                    core.getMsgList().get(0).getRecommendInfo().getUserName());
-        } else if (msg.getType().equals(MsgTypeEnum.MEDIA.getType())) { // 多媒体消息
-            String result = msgHandler.mediaMsgHandle(msg);
-            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
-        }
+        if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
+                String result = msgHandler.verifyAddFriendMsgHandle(msg);
+                MessageTools.sendMsgById(result, core.getMsgList().get(0).getRecommendInfo().getUserName());
+            }
+//        if (msg.getType().equals(MsgTypeEnum.PIC.getType())) {
+//            String result = msgHandler.picMsgHandle(msg);
+//            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
+//        } else if (msg.getType().equals(MsgTypeEnum.VOICE.getType())) {
+//            String result = msgHandler.voiceMsgHandle(msg);
+//            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
+//        } else if (msg.getType().equals(MsgTypeEnum.VIEDO.getType())) {
+//            String result = msgHandler.viedoMsgHandle(msg);
+//            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
+//        } else if (msg.getType().equals(MsgTypeEnum.NAMECARD.getType())) {
+//            String result = msgHandler.nameCardMsgHandle(msg);
+//            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
+//        } else if (msg.getType().equals(MsgTypeEnum.SYS.getType())) { // 系统消息
+//            msgHandler.sysMsgHandle(msg);
+//        } else if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
+//            String result = msgHandler.verifyAddFriendMsgHandle(msg);
+//            MessageTools.sendMsgById(result,
+//                    core.getMsgList().get(0).getRecommendInfo().getUserName());
+//        } else if (msg.getType().equals(MsgTypeEnum.MEDIA.getType())) { // 多媒体消息
+//            String result = msgHandler.mediaMsgHandle(msg);
+//            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
+//        }
 
       }
 

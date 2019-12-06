@@ -108,7 +108,7 @@ public class SimpleDemo implements IMsgHandlerFace {
 	@Override
 	public String verifyAddFriendMsgHandle(BaseMsg msg) {
 		MessageTools.addFriend(msg, true); // 同意好友请求，false为不接受好友请求
-		RecommendInfo recommendInfo = msg.getRecommendInfo();
+		RecommendInfo recommendInfo = msg.getRecommendInfo();//没有走这里
 		String nickName = recommendInfo.getNickName();
 		String province = recommendInfo.getProvince();
 		String city = recommendInfo.getCity();

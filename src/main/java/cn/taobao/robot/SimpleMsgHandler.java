@@ -104,11 +104,11 @@ public class SimpleMsgHandler implements IMsgHandlerFace {
 	@Override
 	public String verifyAddFriendMsgHandle(BaseMsg msg) {
 		MessageTools.addFriend(msg, true); // 同意好友请求，false为不接受好友请求
-		RecommendInfo recommendInfo = msg.getRecommendInfo();
+		RecommendInfo recommendInfo = msg.getRecommendInfo();//走的这个
 		String nickName = recommendInfo.getNickName();
 		String province = recommendInfo.getProvince();
 		String city = recommendInfo.getCity();
-		String text = "你好，来自" + province + city + "的" + nickName + "， 欢迎添加我为好友！";
+		String text = "月儿群小伙伴" +"的" + nickName + "小伙伴你好， 很高兴与你成为好友！,输入<新手教程>可以查看教程,也可以直接向我提问噢/:rose";
 		return text;
 	}
 
