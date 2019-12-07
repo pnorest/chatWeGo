@@ -460,7 +460,7 @@ public class MsgCenter {
 private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处理除文本消息以外的其他消息
         if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
             try {
-                String result = msgHandler.verifyAddFriendMsgHandle(msg);//给新加好友设置备注名
+                String result = msgHandler.verifyAddFriendMsgHandle(msg);//给新加好友设置备注名#
                 RecommendInfo recommendInfo = msg.getRecommendInfo();//走的这个
                 String nickName = recommendInfo.getNickName();
                 String username=recommendInfo.getUserName();
