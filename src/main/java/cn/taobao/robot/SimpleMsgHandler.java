@@ -1,20 +1,26 @@
 package cn.taobao.robot;
 
+import cn.taobao.utils.DateUtil;
 import cn.zhouyafeng.itchat4j.api.MessageTools;
 import cn.zhouyafeng.itchat4j.api.WechatTools;
 import cn.zhouyafeng.itchat4j.beans.BaseMsg;
+import cn.zhouyafeng.itchat4j.beans.Contact;
 import cn.zhouyafeng.itchat4j.beans.RecommendInfo;
 import cn.zhouyafeng.itchat4j.core.Core;
 import cn.zhouyafeng.itchat4j.face.IMsgHandlerFace;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
 import cn.zhouyafeng.itchat4j.utils.tools.DownloadTools;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 简单示例程序，收到文本信息自动回复原信息，收到图片、语音、小视频后根据路径自动保存
@@ -26,6 +32,8 @@ import java.util.Date;
  */
 public class SimpleMsgHandler implements IMsgHandlerFace {
 	Logger LOG = Logger.getLogger(SimpleMsgHandler.class);
+	private static Core simpleCore = Core.getInstance();
+
 
 
 
@@ -108,13 +116,29 @@ public class SimpleMsgHandler implements IMsgHandlerFace {
 	public String verifyAddFriendMsgHandle(BaseMsg msg) {
 		MessageTools.addFriend(msg, true); // 同意好友请求，false为不接受好友请求
 		RecommendInfo recommendInfo = msg.getRecommendInfo();//走的这个
-
 		String nickName = recommendInfo.getNickName();
-		String province = recommendInfo.getProvince();
-		String city = recommendInfo.getCity();
+//		String dateString=DateUtil.getCurrentDateString();
+//		String remarkName = recommendInfo.getNickName()+dateString;//预计设置的备注：remarkName
+//		//加好友之后就设置备注名称
+//		WechatTools.remarkNameByNickName(nickName, remarkName);//这里方法改写来，不会设置错备注
+//        //加好友并设置好备注后，将simpleCore(单例模式，修改指向core)，中的好有列表更新
+//		updateContactList(nickName,remarkName,msg.getFromUserName());
 		String text = nickName + "小伙伴你好,很荣幸与你成为好友/:rose";
-
 		return text;
+	}
+
+	private void updateContactList(String inNickName,String inRemarkName,String inUserName){
+		List<Contact> contactList = JSON.parseArray(JSON.toJSONString(simpleCore.getContactList()), Contact.class);
+		List<JSONObject> jsonObjectList =new ArrayList<>();
+		for(Contact contact:contactList){//相对无序的，与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+			String userName=contact.getUserName();
+			if(userName.equals(inUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
+				contact.setRemarkName(inRemarkName);
+			}//若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+			JSONObject jsonObject = (JSONObject) JSONObject.toJSON(contact);
+			jsonObjectList.add(jsonObject);
+		}
+		simpleCore.setContactList(jsonObjectList);
 	}
 
 	@Override

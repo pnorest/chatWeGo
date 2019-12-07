@@ -74,7 +74,7 @@ public class LoginController {
 		loginService.startReceiving();
 
 		LOG.info("9. 获取联系人信息");
-		loginService.webWxGetContact();
+		loginService.webWxGetContact();//获取联系人，请求一次接口，叠加一次内容
 
 		LOG.info("10. 获取群好友及群好友列表");
 		loginService.WebWxBatchGetContact();

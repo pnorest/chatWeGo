@@ -8,9 +8,12 @@ import cn.taobao.robot.wx.RobotService;
 import cn.taobao.service.order.OrderService;
 import cn.taobao.utils.DateUtil;
 import cn.zhouyafeng.itchat4j.api.MessageTools;
+import cn.zhouyafeng.itchat4j.api.WechatTools;
 import cn.zhouyafeng.itchat4j.beans.Contact;
 import cn.zhouyafeng.itchat4j.core.Core;
 import cn.zhouyafeng.itchat4j.core.MsgCenter;
+import cn.zhouyafeng.itchat4j.service.ILoginService;
+import cn.zhouyafeng.itchat4j.service.impl.LoginServiceImpl;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -347,6 +350,49 @@ public class OrderController {
         System.out.println("onMinAft"+onMinAft);
 
     }
+
+
+
+
+
+//    //    存储好友数据
+//    @Scheduled(cron = "0 0/2 * * * ?")
+//    public void userDumps() {
+//        try {
+//            List<Contact> contactList = JSON.parseArray(JSON.toJSONString(orderCore.getContactList()), Contact.class);
+//
+//            logger.info("执行好友信息转储");
+//            Result result = orderService.userDumps(contactList);
+//            logger.info("result：" + result.getMessage() + "data：" + result.getData());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            //java.util.LinkedHashMap cannot be cast to cn.taobao.entity.order.OrderInfo
+//        }
+//    }
+
+
+
+
+//    @Scheduled(cron = "0 0/2 * * * ?")
+//    public  void fluseContactList(){//2分钟刷新一次好友数据
+//        ILoginService loginService = new LoginServiceImpl();
+////        logger.info("1.1. 开始接收消息");
+////        loginService.startReceiving();
+//
+//        logger.info("1.2. 获取联系人信息");
+//        loginService.webWxGetContact();
+//
+//        logger.info("1.3. 获取群好友及群好友列表");
+//        loginService.WebWxBatchGetContact();
+//
+//        logger.info("1.4. 缓存本次登陆好友相关消息");
+//        WechatTools.setUserInfo(); // 登陆成功后缓存本次登陆好友相关消息（NickName, UserName）
+//        logger.info("orderCore.getNickName():"+orderCore.getNickName());
+//
+//    }
+
+
+
 
 }
 

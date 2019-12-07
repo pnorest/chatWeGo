@@ -9,6 +9,7 @@ import cn.taobao.entity.item.ItemInfo;
 import cn.taobao.entity.item.TaoBaoResult;
 import cn.taobao.entity.order.OrderInfo;
 import cn.taobao.entity.order.Order;
+import cn.zhouyafeng.itchat4j.beans.Contact;
 import com.alibaba.fastjson.JSON;
 import com.joe.http.IHttpClientUtil;
 import com.joe.http.client.IHttpClient;
@@ -331,7 +332,6 @@ public class RobotService {
         logger.debug("得到的链接为：{}", link);
         return link;
     }
-
 
 
 

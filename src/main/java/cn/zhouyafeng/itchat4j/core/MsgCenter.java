@@ -8,11 +8,15 @@ import cn.taobao.entity.study.Study;
 import cn.taobao.robot.wx.RobotService;
 import cn.taobao.service.order.OrderService;
 import cn.taobao.service.study.StudyService;
+import cn.taobao.utils.DateUtil;
 import cn.zhouyafeng.itchat4j.api.MessageTools;
+import cn.zhouyafeng.itchat4j.api.WechatTools;
 import cn.zhouyafeng.itchat4j.beans.BaseMsg;
 import cn.zhouyafeng.itchat4j.beans.Contact;
 import cn.zhouyafeng.itchat4j.beans.RecommendInfo;
 import cn.zhouyafeng.itchat4j.face.IMsgHandlerFace;
+import cn.zhouyafeng.itchat4j.service.ILoginService;
+import cn.zhouyafeng.itchat4j.service.impl.LoginServiceImpl;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgCodeEnum;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
 import cn.zhouyafeng.itchat4j.utils.tools.CommonTools;
@@ -50,6 +54,9 @@ public class MsgCenter {
     private static StudyService studyService;
     private static OrderService orderService;
     private static RobotService robotService;
+//    private static ILoginService loginService;
+//    private static ILoginService loginService;
+
 
 
 
@@ -58,6 +65,7 @@ public class MsgCenter {
         MsgCenter.studyService = studyService;
         MsgCenter.orderService = orderService;
         MsgCenter.robotService = robotService;
+//        MsgCenter.loginService=loginService;
     }
 
 
@@ -190,45 +198,30 @@ public class MsgCenter {
                                 String fromUserName=msg.getFromUserName();//@52e109067156338bd344f2a4ba5e4bfa8a5afd54655638f918546e3102e8e6fe
                                 Contact senMsgContact=new Contact();
                                 try {
-//                                    if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
-//                                        StringBuilder msgFirst = new StringBuilder();
-//                                        StringBuilder msgSec = new StringBuilder();
-//                                        msgFirst.append("/:rose 欢迎月儿群小伙伴使用专属机器人 /:rose \n").append("将淘宝的商品分享给我,就能帮您查询隐藏优惠券并进行返利补贴哦!\n").append(
-//                                                "【帮您省钱】:除了领券，每笔购物享受返利补贴噢 /:heart \n").append("回复\"帮助\"了解更多功能哦~~ /:gift");
-//                                        msgSec.append("亲爱的小伙伴你好！新手教程可以参考以下视频，教您如何找券并返利噢~ /:rose，让我们跟着视频教程操作一起摇摆吧！/:handclap");
-//
-//                                        MessageTools.sendMsgById(msgFirst.toString(),//这个不见了
-//                                                core.getMsgList().get(0).getRecommendInfo().getUserName());//core.getMsgList().get(0).getRecommendInfo().getUserName()
-////                                        MessageTools.sendMsgById(msgSec.toString(),
-////                                                core.getMsgList().get(0).getRecommendInfo().getUserName());//core.getMsgList().get(0).getFromUserName()
-//                                        MessageTools.sendMsgById(msgSec.toString(),
-//                                                core.getMsgList().get(0).getFromUserName());//这个发送给了自己
-//                                        String filePath="C:\\Users\\pnorest\\Desktop\\wechatwego\\jiaocheng.mp4";
-//                                        MessageTools.sendFileMsgByUserId(core.getMsgList().get(0).getFromUserName(),filePath);//这个也发送给了自己
-//
-//
-//                                    }
+                                    String content = msg.getContent();
+                                    List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
+                                    for(Contact contact:contactList){//相对无序的，与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+                                        String userName=contact.getUserName();
+                                        if(userName.equals(fromUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
+                                            String remarkName=contact.getRemarkName();
+                                            LOG.info("发消息的remarkName为："+remarkName);
+                                            senMsgContact.setRemarkName(remarkName);
+                                            senMsgContact.setNickName(contact.getNickName());
+                                            LOG.info("发消息的NickName为："+contact.getNickName());
+                                            senMsgContact.setSignature(contact.getSignature());
+                                            senMsgContact.setSex(contact.getSex());
+                                        }
+                                        //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+                                    }
 
                                     if (msg.getType().equals(MsgTypeEnum.TEXT.getType())) {//先匹配订单号，再匹配淘口令
-                                        String content = msg.getContent();
-                                        List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
-                                        for(Contact contact:contactList){//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
-                                            String userName=contact.getUserName();
-                                            if(userName.equals(fromUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
-                                                String remarkName=contact.getRemarkName();
-                                                System.out.println("发消息的人为："+remarkName);//发消息的人为：薛娟小号
-                                                senMsgContact.setRemarkName(remarkName);
-                                                senMsgContact.setNickName(contact.getNickName());
-                                                senMsgContact.setSignature(contact.getSignature());
-                                                senMsgContact.setSex(contact.getSex());
-                                            }
-                                            //若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
-                                        }
                                         String trade_parent_id = getMatchers(orderRegex, content);//先匹配订单号
                                         if (!trade_parent_id.equals("")){//如果没匹配到订单号，则走淘口令的检测
                                             //匹配到订单号，走订单的逻辑
                                             String lastSix=trade_parent_id.substring(12,18);
-                                            String remarkName=senMsgContact.getRemarkName();//得到备注名称
+                                            //得到备注名称 绑定昵称和订单号
+                                            String nickname=senMsgContact.getNickName();
+                                          String remarkName=senMsgContact.getRemarkName();
                                             List<OrderInfo> orderInfoList=orderService.validOrderNum(trade_parent_id);//判断有效订单
                                             if(orderInfoList.size()>0)//如果为有效订单号
                                             {
@@ -270,22 +263,22 @@ public class MsgCenter {
                                                 MessageTools.sendMsgById("订单数据暂未同步，请5分钟后再试", core.getMsgList().get(0).getFromUserName());
                                             }
 
-                                        }else
-                                        {//如果没匹配到订单号，则走淘口令的检测
-                                            String TAO_TOKEN = getMatchers(regex, content);
-                                            if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {
-                                                dealResource(msg,senMsgContact.getRemarkName());//当个人消息没有匹配到淘口令时，处理资料消息
-                                            } else {
-                                                dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
-                                            }
+                                    }else
+                                    {//如果没匹配到订单号，则走淘口令的检测
+                                        String TAO_TOKEN = getMatchers(regex, content);
+                                        if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {
+                                            dealResource(msg,senMsgContact.getRemarkName());//当个人消息没有匹配到淘口令时，处理资料消息
+                                        } else {
+                                            dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
                                         }
-
                                     }
 
-                                    dealOtherMsg( msgHandler, msg);//个人消息的处理
-                                } catch (Exception e) {
-                                    e.printStackTrace();
                                 }
+
+                            dealOtherMsg( msgHandler, msg);//个人消息的处理
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             }
                         }
                     }
@@ -466,11 +459,26 @@ public class MsgCenter {
 
 private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处理除文本消息以外的其他消息
         if (msg.getType().equals(MsgTypeEnum.VERIFYMSG.getType())) { // 确认添加好友消息
-                String result = msgHandler.verifyAddFriendMsgHandle(msg);
-                RecommendInfo userInfo=msg.getRecommendInfo();
-                //orderService.saveUserInfo(userInfo);
+            try {
+                String result = msgHandler.verifyAddFriendMsgHandle(msg);//给新加好友设置备注名
+                RecommendInfo recommendInfo = msg.getRecommendInfo();//走的这个
+                String nickName = recommendInfo.getNickName();
+                String username=recommendInfo.getUserName();
+                String dateString = DateUtil.getCurrentDateString();
+                String remarkName = recommendInfo.getNickName() + dateString;//预计设置的备注：remarkName
+                //加好友之后就设置备注名称
+                WechatTools.remarkNameByUsername(username, remarkName);//这里方法改写来，不会设置错备注
+                //加好友并设置好备注后，将simpleCore(单例模式，修改指向core)，中的好有列表更新
+                updateContactList(nickName, remarkName, username);
+                LOG.info("加好友后修改好友备注名为"+remarkName);
+
                 MessageTools.sendMsgById(result, core.getMsgList().get(0).getRecommendInfo().getUserName());
+            }catch (Exception e){
+               LOG.error("添加好友修改备注并更新好友列表失败"+e.getMessage());
             }
+        }
+
+
 //        if (msg.getType().equals(MsgTypeEnum.PIC.getType())) {
 //            String result = msgHandler.picMsgHandle(msg);
 //            MessageTools.sendMsgById(result, core.getMsgList().get(0).getFromUserName());
@@ -495,5 +503,28 @@ private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处�
 //        }
 
       }
+
+    private static void updateContactList(String inNickName,String inRemarkName,String inUserName){
+        List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
+        List<JSONObject> jsonObjectList =new ArrayList<>();
+        for(Contact contact:contactList){//相对无序的，与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+            String userName=contact.getUserName();
+            if(userName.equals(inUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
+                contact.setRemarkName(inRemarkName);
+                LOG.info("匹配到到remarkname"+contact.getRemarkName());
+                LOG.info("匹配到到username"+contact.getUserName());
+                LOG.info("匹配到到nickname"+contact.getUserName());
+            }//若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(contact);
+            jsonObjectList.add(jsonObject);
+        }
+        core.getContactList().clear();
+        core.setContactList(jsonObjectList);
+    }
+
+
+
+
+
 
 }

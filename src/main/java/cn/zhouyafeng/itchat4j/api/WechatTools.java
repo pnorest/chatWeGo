@@ -202,6 +202,30 @@ public class WechatTools {
 		}
 	}
 
+
+	public static void remarkNameByUsername(String userName, String remName) {
+		String url = String.format(URLEnum.WEB_WX_REMARKNAME.getUrl(), core.getLoginInfo().get("url"),
+				core.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
+		Map<String, Object> msgMap = new HashMap<String, Object>();
+		Map<String, Object> msgMap_BaseRequest = new HashMap<String, Object>();
+		msgMap.put("CmdId", 2);
+		msgMap.put("RemarkName", remName);
+		msgMap.put("UserName", userName);
+		msgMap_BaseRequest.put("Uin", core.getLoginInfo().get(StorageLoginInfoEnum.wxuin.getKey()));
+		msgMap_BaseRequest.put("Sid", core.getLoginInfo().get(StorageLoginInfoEnum.wxsid.getKey()));
+		msgMap_BaseRequest.put("Skey", core.getLoginInfo().get(StorageLoginInfoEnum.skey.getKey()));
+		msgMap_BaseRequest.put("DeviceID", core.getLoginInfo().get(StorageLoginInfoEnum.deviceid.getKey()));
+		msgMap.put("BaseRequest", msgMap_BaseRequest);
+		try {
+			String paramStr = JSON.toJSONString(msgMap);
+			HttpEntity entity = core.getMyHttpClient().doPost(url, paramStr);
+			// String result = EntityUtils.toString(entity, Consts.UTF_8);
+			LOG.info("修改备注" + remName);
+		} catch (Exception e) {
+			LOG.error("remarkNameByUserName", e);
+		}
+	}
+
 	/**
 	 * 获取微信在线状态
 	 * 

@@ -8,19 +8,27 @@ package cn.zhouyafeng.itchat4j.beans;
  * @Version 1.0
  **/
 public class Contact {
+    private String UserName;
     private String Sex;
     private String AttrStatus;
     private String Statues;
-    private String UniFriend;
-    private String ContactFlag;
-    private String UserName;
-    private String HeadImgUrl;
     private String City;
     private String NickName;
     private String Province;
+    private String Alias;
+    private String UniFriend;
+    private String ContactFlag;
+    private String HeadImgUrl;
     private String Signature;
     private String RemarkName;
 
+    public String getAlias() {
+        return Alias;
+    }
+
+    public void setAlias(String alias) {
+        Alias = alias;
+    }
 
     public String getSex() {
         return Sex;

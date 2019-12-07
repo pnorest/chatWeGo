@@ -385,7 +385,7 @@ public class LoginServiceImpl implements ILoginService {
 						core.getGroupIdList().add(o.getString("UserName"));
 						core.getGroupList().add(o);
 					}
-				} else if (o.getString("UserName").equals(core.getUserSelf().getString("UserName"))) { // 自己
+				} else if (o.getString("UserName").equals(core.getUserSelf().getString("UserName"))) { // 排除自己
 					core.getContactList().remove(o);
 				} else { // 普通联系人
 					core.getContactList().add(o);

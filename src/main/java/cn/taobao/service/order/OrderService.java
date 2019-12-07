@@ -202,4 +202,9 @@ public class OrderService {
     public void saveUserInfo(RecommendInfo userInfo) {
         orderMapper.saveUserInfo(userInfo);
     }
+
+    public Result userDumps(List<Contact> contactList) {
+        orderMapper.userDumps(contactList);
+        return new Result(Result.CODE.SUCCESS.getCode(),"好友信息转储成功");
+    }
 }

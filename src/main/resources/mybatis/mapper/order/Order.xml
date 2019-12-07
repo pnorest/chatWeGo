@@ -223,6 +223,40 @@
         </foreach>
     </insert>
 
+    <insert id="userDumps">
+        insert into user_info(
+            user_name,
+            sex,
+            attrStatus,
+            city,
+            statues,
+            nickname,
+            province,
+            alias,
+            contact_flag,
+            signature,
+            remark_name,
+            create_time
+        )values
+        <foreach collection="contactList" item="contact" index="index" separator=",">
+            (
+            #{contact.UserName},
+            #{contact.Sex},
+            #{contact.AttrStatus},
+            #{contact.Statues},
+            #{contact.City},
+            #{contact.NickName},
+            #{contact.Province},
+            #{contact.Alias},
+            #{contact.ContactFlag},
+            #{contact.Signature},
+            #{contact.RemarkName},
+            now()
+            )
+        </foreach>
+
+    </insert>
+
 
     <update id="balanceByLastSix" >
     UPDATE orders_info set order_status=1 WHERE   tk_status=3 and order_status=0 and SUBSTRING( trade_id, 13 )=#{lastSix}
@@ -290,39 +324,33 @@
     </update>
 
     <insert id="saveUserInfo">
-
-        insert into user_order(
-        nickName,
-        sex,
-        attrStatus,
-        city,
-        scene,
-        province,
-        content,
-        alias,
-        signature,
-        opCode,
-        qQNum,
-        verifyFlag,
-        ticket,
-        user_name
+        insert into user_info(
+            user_name,
+            sex,
+            attrStatus,
+            city,
+            statues,
+            nickname,
+            province,
+            alias,
+            contact_flag,
+            signature,
+            remark_name
         )values
             (
-            #{nickName},
-            #{sex},
-            #{attrStatus},
-            #{city},
-            #{scene},
-            #{province},
-            #{content},
-            #{alias},
-            #{signature},
-            #{opCode},
-            #{qQNum},
-            #{ticket},
-            #{verifyFlag}
-
+            #{contact.UserName},
+            #{contact.Sex},
+            #{contact.AttrStatus},
+            #{contact.Statues},
+            #{contact.City},
+            #{contact.NickName},
+            #{contact.Province},
+            #{contact.Alias},
+            #{contact.ContactFlag},
+            #{contact.Signature},
+            #{contact.RemarkName}
             )
+
     </insert>
 
 

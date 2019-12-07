@@ -64,6 +64,23 @@ public class DateUtil {
     }
 
 
+    /**
+     * @description 获取当前时间日期
+     * @author zl
+     * @date 2019/8/15 10:01
+     **/
+    public static String getCurrentDateString() {
+        try {
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String s = sdf.format(date);
+            return s;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
 
@@ -175,7 +192,7 @@ public class DateUtil {
     }
 
 
-    public static String onMinAft(Date date) {//
+    public static String onMinAft(Date date) {//下单时间5分钟左右
         try {
             date.setTime(date.getTime()+ 2*5*60*1000);
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
