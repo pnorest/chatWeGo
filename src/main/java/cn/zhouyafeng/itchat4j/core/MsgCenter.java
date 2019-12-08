@@ -230,7 +230,7 @@ public class MsgCenter {
                                             {
                                                 UserOrder isFirstOrder=orderService.checkFirstOrder(remarkName);//先判断是否为该好友的第一个订单号
                                                 if (isFirstOrder==null){//如果为第一个订单(因为第一个订单，所以后台返回空)
-                                                    //需判断这个订单跟以前的订单数据是否冲突后再绑定人和订单
+                                                    //需判断这个订单跟以前的订单数据是否冲突后再绑定人和订单、
                                                     //如果这个订单后6位数与其他绑定的订单后6位数不重复=》则绑定该订单
                                                     List<UserOrder> hasBindOrders=orderService.hasBindOrders();
                                                     UserOrder userOrderContains=new UserOrder();
