@@ -15,6 +15,8 @@ public class CheckOrderStatusVo {
     private String item_title;
     private String alipay_total_price;
     private String seller_shop_title;
+    private Integer new_send_flag;
+
 
 
 
@@ -74,5 +76,13 @@ public class CheckOrderStatusVo {
 
     public void setSeller_shop_title(String seller_shop_title) {
         this.seller_shop_title = seller_shop_title;
+    }
+
+    public Integer getNew_send_flag() {
+        return new_send_flag;
+    }
+
+    public void setNew_send_flag(Integer new_send_flag) {
+        this.new_send_flag = new_send_flag;
     }
 }

@@ -220,7 +220,7 @@ public class WechatTools {
 			String paramStr = JSON.toJSONString(msgMap);
 			HttpEntity entity = core.getMyHttpClient().doPost(url, paramStr);
 			// String result = EntityUtils.toString(entity, Consts.UTF_8);
-			LOG.info("修改备注" + remName);
+//			LOG.info("修改备注" + remName);
 		} catch (Exception e) {
 			LOG.error("remarkNameByUserName", e);
 		}

@@ -71,7 +71,7 @@ public class MsgCenter {
 
 
 
-    private static Core core = Core.getInstance();
+    public static Core core = Core.getInstance();
 
 
 //    private static IHttpClient client;
@@ -204,10 +204,13 @@ public class MsgCenter {
                                         String userName=contact.getUserName();
                                         if(userName.equals(fromUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
                                             String remarkName=contact.getRemarkName();
-                                            LOG.info("发消息的remarkName为："+remarkName);
+                                            if("".equals(remarkName)){
+                                                LOG.info("发消息的remarkName为空时，continue");
+                                                continue;
+                                            }
                                             senMsgContact.setRemarkName(remarkName);
                                             senMsgContact.setNickName(contact.getNickName());
-                                            LOG.info("发消息的NickName为："+contact.getNickName());
+                                            LOG.info("发消息的remarkName为："+contact.getRemarkName());
                                             senMsgContact.setSignature(contact.getSignature());
                                             senMsgContact.setSex(contact.getSex());
                                         }
@@ -260,7 +263,7 @@ public class MsgCenter {
                                                 }
                                             }else {
                                                 //如果为无效订单号或未同步数据的号，则返回提示
-                                                MessageTools.sendMsgById("订单数据暂未同步，请5分钟后再试", core.getMsgList().get(0).getFromUserName());
+                                                MessageTools.sendMsgById("订单数据暂未同步，请2分钟后再试", core.getMsgList().get(0).getFromUserName());
                                             }
 
                                     }else
@@ -316,7 +319,7 @@ public class MsgCenter {
 //        RobotService robot2 = new RobotService(client);
         Map searchMap = robotService.convertLink(taoToken);//转取淘口令，得到click_url  商品id num_iid
         if (searchMap == null) {
-//            MessageTools.sendMsgById("1", core.getMsgList().get(0).getFromUserName());
+            MessageTools.sendMsgById("1", core.getMsgList().get(0).getFromUserName());
         } else {
             String num_iid = (String) searchMap.get("num_iid");
             TaoBaoResult taoBaoResult = robotService.findInfo(num_iid);//通过商品id得到该商品的具体信息，佣金比例，价格和自己的二合一淘口令
@@ -354,7 +357,7 @@ public class MsgCenter {
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
 //                double returnPrice=bg.doubleValue();
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("本功能预计返很高,只为内部提供服务,欢迎安利给身边小伙伴噢/:heart");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(couponPrice)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("输入<帮助>指令可了解更多功能,本系统只为内部提供服务,欢迎安利给身边小伙伴噢/:heart");
 
             } else {
                 Double returnNumber = priceNumber * (rateNumber / 100);//返约 返佣大约多少  返佣率一般为0.65  我们0.75 抽0.25
@@ -374,7 +377,7 @@ public class MsgCenter {
 //                String returnPrice = df.format(bg.doubleValue());
 //                BigDecimal bg = new BigDecimal(returnNumber).setScale(2, RoundingMode.DOWN);
                 String returnPrice =orderService.formatDouble(returnNumber);
-                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("本功能预计返很高,只为内部提供服务,欢迎安利给身边小伙伴噢/:heart");
+                str.append(title).append("\n").append("原    价: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("券    后: ").append(orderService.formatDouble(priceNumber)).append(" ￥\n").append("预计返: ").append(returnPrice).append(" ￥  /:rose\n").append("———————————————").append("\n").append("复制此消息:").append(tpwd).append("\n").append("打开TaoBao使用。").append("输入<帮助>指令可了解更多功能,本系统只为内部提供服务,欢迎安利给身边小伙伴噢/:heart");
             }
             MessageTools.sendMsgById(str.toString(), core.getMsgList().get(0).getFromUserName());
         }
@@ -464,14 +467,15 @@ private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处�
                 RecommendInfo recommendInfo = msg.getRecommendInfo();//走的这个
                 String nickName = recommendInfo.getNickName();
                 String username=recommendInfo.getUserName();
+                LOG.info("新增的好友recommendInfo.getUserName()为"+username);
                 String dateString = DateUtil.getCurrentDateString();
                 String remarkName = recommendInfo.getNickName() + dateString;//预计设置的备注：remarkName
                 //加好友之后就设置备注名称
                 WechatTools.remarkNameByUsername(username, remarkName);//这里方法改写来，不会设置错备注
                 //加好友并设置好备注后，将simpleCore(单例模式，修改指向core)，中的好有列表更新
-                updateContactList(nickName, remarkName, username);
-                LOG.info("加好友后修改好友备注名为"+remarkName);
-
+//                updateContactList(nickName, remarkName, username);
+                Thread testThread = new Thread(new MsgCenter.TestTask(nickName, remarkName, username));//当前线程后，另启动一个线程
+                testThread.start();
                 MessageTools.sendMsgById(result, core.getMsgList().get(0).getRecommendInfo().getUserName());
             }catch (Exception e){
                LOG.error("添加好友修改备注并更新好友列表失败"+e.getMessage());
@@ -506,20 +510,62 @@ private static void dealOtherMsg(IMsgHandlerFace msgHandler,BaseMsg msg){//处�
 
     private static void updateContactList(String inNickName,String inRemarkName,String inUserName){
         List<Contact> contactList = JSON.parseArray(JSON.toJSONString(core.getContactList()), Contact.class);
+        //有新增好友的数据（username相同）
+        LOG.info("inRemarkName"+inRemarkName);
+        LOG.info("inUserName"+inUserName);
         List<JSONObject> jsonObjectList =new ArrayList<>();
-        for(Contact contact:contactList){//相对无序的，与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
-            String userName=contact.getUserName();
-            if(userName.equals(inUserName)){//匹配到发消息者，则得到发消息者的信息,并退出当前循环
-                contact.setRemarkName(inRemarkName);
-                LOG.info("匹配到到remarkname"+contact.getRemarkName());
-                LOG.info("匹配到到username"+contact.getUserName());
-                LOG.info("匹配到到nickname"+contact.getUserName());
-            }//若没有匹配到发消息者，则不做任何处理，走下面逻辑就行(不可能)
+        for(Contact contact:contactList){//这个list没有发消息者的这个数据，因此，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
+//            if(contact.getUserName().equals(inUserName)){
+//                LOG.info("好友列表contact中匹配到username为"+contact.getUserName());
+//                contact.setRemarkName(inRemarkName);
+//                LOG.info("刷新好友列表成功,新加好友的inRemarkName为"+inRemarkName);
+//            }
+            //contactList没有新加入的这条数据
+            LOG.info("username"+contact.getUserName()+"nickname"+contact.getNickName());
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(contact);
             jsonObjectList.add(jsonObject);
         }
+        Contact inContact=new Contact();
+        inContact.setNickName(inNickName);
+        inContact.setRemarkName(inRemarkName);
+        inContact.setUserName(inUserName);
+        LOG.info("修改后的username"+inContact.getUserName()+"修改后的nickname"+inContact.getNickName());
+        JSONObject inJsonObject = (JSONObject) JSONObject.toJSON(inContact);
+        jsonObjectList.add(inJsonObject);
         core.getContactList().clear();
         core.setContactList(jsonObjectList);
+//        LOG.info("刷新好友列表成功,新加好友的inRemarkName为"+inRemarkName);
+
+    }
+
+
+
+
+
+    static class TestTask implements Runnable {
+        private String inNickName;
+        private String inRemarkName;
+        private String inUserName;
+
+
+        public TestTask(String inNickName,String inRemarkName,String inUserName) {
+            this.inNickName = inNickName;
+            this.inRemarkName = inRemarkName;
+            this.inUserName = inUserName;
+
+        }
+
+        @Override
+        public void run() {
+            try {
+                LOG.info("执行更新联系人列表线程任务,新加好友后200ms后执行操作");
+                Thread.sleep(200);
+                updateContactList(inNickName,inRemarkName,inUserName);
+            }catch (Exception e){
+                LOG.info("执行更新联系人列表线程任务报错"+e.getMessage());
+            }
+
+        }
     }
 
 

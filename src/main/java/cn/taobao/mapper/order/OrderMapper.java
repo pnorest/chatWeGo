@@ -52,4 +52,8 @@ public interface OrderMapper {
     void saveUserInfo(RecommendInfo userInfo);
 
     void userDumps(@Param("contactList") List<Contact> contactList);
+
+    List<CheckOrderStatusVo> checkNewOrder();
+
+    void upNewSendFlag(String trade_id);
 }

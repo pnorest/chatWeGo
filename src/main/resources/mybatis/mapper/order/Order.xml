@@ -354,6 +354,17 @@
     </insert>
 
 
+    <select id="checkNewOrder" resultType="cn.taobao.entity.order.vo.CheckOrderStatusVo">
+    SELECT a.tk_paid_time,a.tk_status,a.trade_id,a.item_title,a.seller_shop_title,a.new_send_flag,b.user_remark_name,a.order_create_time,a.alipay_total_price    from orders_info a LEFT JOIN user_order b on SUBSTRING(a.trade_id,13) =SUBSTRING(b.trade_id,13) where tk_status=12 and new_send_flag=0 and user_remark_name is not null
+    and order_create_time >=CURRENT_TIMESTAMP - INTERVAL 10 MINUTE;
+    </select>
+
+
+    <update id="upNewSendFlag">
+        UPDATE orders_info set new_send_flag=1 WHERE    trade_id=#{trade_id}
+    </update>
+
+
 
 
 

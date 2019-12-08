@@ -95,7 +95,7 @@ public class OrderService {
         String canCashOutFee=formatDouble(canCashOutFeeReturn);
 
         if (canCashOutFeeReturn<0.1){//如果可提现金额小于1，则提示用户申请失败，金额>1元时才可以提现
-            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于0.1￥时操作。注意：淘宝官方数据可能有一定延时,商品确认收货后第二日提现最优\n"+"----------------------------------\n"+"有相关问题请联系管理员噢/:rose");
+            return new Result(Result.CODE.FAIL.getCode(),"------申请失败------\n","提现金额需大于0.1￥时操作。输入<个人信息>指令可查看订单信息\n"+"----------------------------------\n"+"有相关问题请联系管理员噢/:rose");
         }
         //提现成功前，需要把本好友remarkName，对应的tk_status状态为3且order_status=0的订单更新状态，把order_status变为1
         String lastSix=orderMapper.findLastSixByRemarkName(remarkName);//找到对应好友后6位
@@ -206,5 +206,13 @@ public class OrderService {
     public Result userDumps(List<Contact> contactList) {
         orderMapper.userDumps(contactList);
         return new Result(Result.CODE.SUCCESS.getCode(),"好友信息转储成功");
+    }
+
+    public List<CheckOrderStatusVo> checkNewOrder() {
+        return orderMapper.checkNewOrder();
+    }
+
+    public void upNewSendFlag(String trade_id) {//更新新订单发送消息的标记
+        orderMapper.upNewSendFlag(trade_id);
     }
 }
