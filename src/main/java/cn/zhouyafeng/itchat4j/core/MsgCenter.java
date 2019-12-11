@@ -186,7 +186,7 @@ public class MsgCenter {
                                        String remark_name="群消息";
 								  	   dealResource(msg,remark_name);
                                     } else {
-                                        //如果个人消息匹配到淘口令，处理淘口令
+                                        //如果个人消息匹配到淘口令，处理淘口令#
                                         dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
                                     }
                                 }
