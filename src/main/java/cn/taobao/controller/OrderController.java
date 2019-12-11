@@ -168,6 +168,7 @@ public class OrderController {
                             logger.info("确认收货，自动更新状态的订单号为：" + orderInfo.getTrade_id());
                             logger.info("checkOrderStatusVo"+checkOrderStatusVo.getUser_remark_name());
                             Contact senMsgContact = receipt(checkOrderStatusVo);
+                            logger.info("确认收货,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
                             MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可以找机器人提现噢/:rose\n" + "订单编号：" + checkOrderStatusVo.getTrade_id() + "\n付款金额：" + checkOrderStatusVo.getAlipay_total_price() + " ￥\n店铺名称：" + checkOrderStatusVo.getSeller_shop_title() + "\n商品信息：" + checkOrderStatusVo.getItem_title() + "\n-----------------------------------------" + "\n发送<提现>指令可领取红包噢/:heart", senMsgContact.getUserName());
                             logger.info("推送消息成功");
                         }
@@ -195,6 +196,7 @@ public class OrderController {
             //checkOrderStatusVo这里需要设置备注名字才能发消息
             for (CheckOrderStatusVo checkOrderStatusVo : checkNewOrder) {//找到状态为12的订单且没推送过的订单
                 Contact senMsgContact = receipt(checkOrderStatusVo);
+                logger.info("商品已下单,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
                 orderService.upNewSendFlag(checkOrderStatusVo.getTrade_id());
                 MessageTools.sendMsgById("您的商品已下单成功。\n"+"确认收获后可提现噢/:rose\n"  + "-----------------------------------------" + "\n发送<个人信息>指令可查询所有订单情况/:heart", senMsgContact.getUserName());
                 Thread.sleep(1000);
@@ -260,15 +262,18 @@ public class OrderController {
 
     private Contact receipt(CheckOrderStatusVo checkOrderStatusVo) {//抽离出给某个好友单独发送消息的部分
         Contact senMsgContact = new Contact();
+
+        logger.info("checkOrderStatusVo.getUser_remark_name()"+checkOrderStatusVo.getUser_remark_name());;
 //        MsgCenter.core.getContactList();
 //        orderCore.getContactList()
         List<Contact> contactList = JSON.parseArray(JSON.toJSONString(MsgCenter.core.getContactList()), Contact.class);
         for (Contact contact : contactList) {//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
             String contactRemarkName = contact.getRemarkName();
+            logger.info("对应的人的nickname为：" + contact.getNickName() +"对应的人的userName为：" + contact.getUserName() + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
             //空指针
             if (checkOrderStatusVo.getUser_remark_name().equals(contactRemarkName)) {//使用remarkName匹配到对应的人，fromUserName
                 String userName = contact.getUserName();
-                System.out.println("对应的人的userName为：" + userName + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
+                logger.info("对应的人的userName为：" + userName + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
                 senMsgContact.setUserName(userName);
                 senMsgContact.setRemarkName(checkOrderStatusVo.getUser_remark_name());
             }
