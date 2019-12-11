@@ -446,7 +446,7 @@ public class MsgCenter {
                 double hadBalanceCount=map.get("hadBalanceCount");
                 double canCashOutCount=map.get("canCashOutCount");
                 double predictBalanceCount=map.get("predictBalanceCount");
-                stringBuilder.append("------个人信息------\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("已提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("----------------------------------\n").append("可提现金额有值时,输入“提现”,24小时内可获得返现红包。少部分原因会导致返利出现偏差,有问题请联系管理员噢/:rose");
+                stringBuilder.append("------个人信息------\n").append("可提现金额：").append(orderService.formatDouble(canCashOutFeeReturn)).append(" ￥(").append(canCashOutCount).append("单）\n").append("未收货金额：").append(orderService.formatDouble(predictBalanceFeeReturn)).append(" ￥(").append(predictBalanceCount).append("单）\n").append("已提现金额:").append(orderService.formatDouble(hadBalanceFeeReturn)).append(" ￥(").append(hadBalanceCount).append("单）\n").append("----------------------------------\n").append("可提现金额有值时,输入“提现”,24小时内可获得返现红包/:rose");
             }
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }

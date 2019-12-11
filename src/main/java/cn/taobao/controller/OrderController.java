@@ -169,7 +169,7 @@ public class OrderController {
                             logger.info("checkOrderStatusVo"+checkOrderStatusVo.getUser_remark_name());
                             Contact senMsgContact = receipt(checkOrderStatusVo);
                             logger.info("确认收货,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
-                            MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可以找机器人提现噢/:rose\n" + "订单编号：" + checkOrderStatusVo.getTrade_id() + "\n付款金额：" + checkOrderStatusVo.getAlipay_total_price() + " ￥\n店铺名称：" + checkOrderStatusVo.getSeller_shop_title() + "\n商品信息：" + checkOrderStatusVo.getItem_title() + "\n-----------------------------------------" + "\n发送<提现>指令可领取红包噢/:heart", senMsgContact.getUserName());
+                            MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可联系管理员提现/:rose\n" + "订单编号：" + checkOrderStatusVo.getTrade_id() + "\n付款金额：" + checkOrderStatusVo.getAlipay_total_price() + " ￥\n店铺名称：" + checkOrderStatusVo.getSeller_shop_title()  + "\n-----------------------------------------" + "\n发送<提现>指令可领取红包噢/:heart", senMsgContact.getUserName());
                             logger.info("推送消息成功");
                         }
                     }//
@@ -198,7 +198,7 @@ public class OrderController {
                 Contact senMsgContact = receipt(checkOrderStatusVo);
                 logger.info("商品已下单,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
                 orderService.upNewSendFlag(checkOrderStatusVo.getTrade_id());
-                MessageTools.sendMsgById("您的商品已下单成功。\n"+"确认收获后可提现噢/:rose\n"  + "-----------------------------------------" + "\n发送<个人信息>指令可查询所有订单情况/:heart", senMsgContact.getUserName());
+                MessageTools.sendMsgById("您的商品已下单成功。\n"+"确认收获后可以提现" + "\n发送“个人信息”可查询订单/:rose", senMsgContact.getUserName());
                 Thread.sleep(1000);
             }
         } catch (Exception e) {

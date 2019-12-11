@@ -100,7 +100,7 @@ public class OrderService {
         //提现成功前，需要把本好友remarkName，对应的tk_status状态为3且order_status=0的订单更新状态，把order_status变为1
         String lastSix=orderMapper.findLastSixByRemarkName(remarkName);//找到对应好友后6位
         orderMapper.balanceByLastSix(lastSix);//把订单状态变为结算状态
-        return new Result(Result.CODE.SUCCESS.getCode(),"------申请成功------\n","提现金额"+canCashOutFee+"￥，涉及订单数量"+canCashOutCount+"单,将于24小时内发放到您的微信\n"+"----------------------------------\n"+"有相关问题请联系管理员噢/:rose");
+        return new Result(Result.CODE.SUCCESS.getCode(),"------申请成功------\n","提现金额"+canCashOutFee+"￥，涉及订单数量"+canCashOutCount+"单,稍后将发放到您的微信\n"+"----------------------------------\n"+"有相关问题请联系管理员噢/:rose");
     }
 
     public Map<String,Double> userInfo(String remarkName){
