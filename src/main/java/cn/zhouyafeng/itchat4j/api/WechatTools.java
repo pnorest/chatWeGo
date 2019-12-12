@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.zhouyafeng.itchat4j.beans.GroupContact;
+import cn.zhouyafeng.itchat4j.core.MsgCenter;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -57,7 +59,7 @@ public class WechatTools {
 	 * 
 	 * @author https://github.com/yaphone
 	 * @date 2017年5月4日 下午10:56:31
-	 * @param name
+	 * @param
 	 * @return
 	 */
 	public static String getUserNameByNickName(String nickName) {
@@ -234,6 +236,27 @@ public class WechatTools {
 	 */
 	public static boolean getWechatStatus() {
 		return core.isAlive();
+	}
+
+
+
+
+
+	public  static String findGroupUserName(String groupNickName){//根据对应名称的群名，并找到对应username
+		LOG.info("传入群的nickName"+groupNickName);
+		String username="";
+		List<GroupContact> groupContactList = JSON.parseArray(JSON.toJSONString(MsgCenter.core.getGroupList()), GroupContact.class);
+		for (GroupContact groupContact:groupContactList){
+			if(groupNickName.equals(groupContact.getNickName())){//使用群名匹配群username
+				username=groupContact.getUserName();//这里取个不重名的群
+				LOG.info("匹配群的username"+username+"nickname"+groupContact.getNickName()+"EncryChatRoomId"+groupContact.getEncryChatRoomId());
+			}
+		}
+		if("".equals(username)){
+			return "";
+		}
+
+		return username;
 	}
 
 }

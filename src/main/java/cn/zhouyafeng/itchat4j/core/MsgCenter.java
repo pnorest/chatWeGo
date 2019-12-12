@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 /**
  * 消息处理中心
  *
@@ -174,23 +175,40 @@ public class MsgCenter {
             while (true) {
                 if (core.getMsgList().size() > 0 && core.getMsgList().get(0).getContent() != null) {
                     if (core.getMsgList().get(0).getContent().length() > 0) {
+//                        String groupNickName="测试群啦啦啦啦";
+                        String groupNickName="<span class=\"emoji emoji1f338\"></span> 月儿福利群\uD83C\uDE32 互加";
                         BaseMsg msg = core.getMsgList().get(0);
                         if (msg.isGroupMsg())//List<String> groupIdList = core.getGroupIdList(); //也可以针对群id和群备注名称，控制单个群消息
                         {//如果是群消息
-                            if (msg.getType() != null) {
-                                if (msg.getType().equals(MsgTypeEnum.TEXT.getType()))
-                                {
-                                    String content = msg.getContent();
-                                    String TAO_TOKEN = getMatchers(regex, content);
-                                    if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {//没有匹配到淘口令时,处理资料信息
-                                       String remark_name="群消息";
-								  	   dealResource(msg,remark_name);
-                                    } else {
-                                        //如果个人消息匹配到淘口令，处理淘口令##
-                                        dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
+                            if (msg.getType() != null) {//@@22f6bb82a3813d6f60362b3c37873e2e21ed0b1478bc540594d42419b3a7c867
+
+                                String groupUserName=WechatTools.findGroupUserName(groupNickName);//对
+                                LOG.info("自己设置的群的groupUserName"+groupUserName);
+                                String FromUserName=msg.getFromUserName();
+                                LOG.info("收到消息的FromUserName"+FromUserName);
+                                //core.getMsgList().get(0).getFromUserName()  群消息
+                                if(FromUserName.equals(groupUserName)){//如果发消息的群跟自己设置的群的username一只，则处理群消息，否则不处理
+
+                                    if (msg.getType().equals(MsgTypeEnum.TEXT.getType()))
+                                    {
+                                        String content = msg.getContent();
+                                        String TAO_TOKEN = getMatchers(regex, content);
+                                        if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {//没有匹配到淘口令时,处理资料信息
+                                            String remark_name="群消息";
+                                            dealResource(msg,remark_name);
+                                        } else {
+                                            //如果群消息匹配到淘口令，处理淘口令##
+                                            dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
+                                        }
                                     }
+                                    //dealOtherMsg(msgHandler,msg);//处理文本消息以外的其他消息
                                 }
-                                //dealOtherMsg(msgHandler,msg);//处理文本消息以外的其他消息
+                                //如果不属于指定群，则不做任何处理
+
+
+
+
+
                             }
                         }
                         else
@@ -320,7 +338,7 @@ public class MsgCenter {
 //        RobotService robot2 = new RobotService(client);
         Map searchMap = robotService.convertLink(taoToken);//转取淘口令，得到click_url  商品id num_iid
         if (searchMap == null) {
-            MessageTools.sendMsgById("1", core.getMsgList().get(0).getFromUserName());
+            MessageTools.sendMsgById("此商品全网无返,小伙伴不要灰心,来,惊喜总在下一个/:rose", core.getMsgList().get(0).getFromUserName());
         } else {
             String num_iid = (String) searchMap.get("num_iid");
             TaoBaoResult taoBaoResult = robotService.findInfo(num_iid);//通过商品id得到该商品的具体信息，佣金比例，价格和自己的二合一淘口令

@@ -8,9 +8,12 @@ import cn.taobao.robot.wx.RobotService;
 import cn.taobao.service.order.OrderService;
 import cn.taobao.utils.DateUtil;
 import cn.zhouyafeng.itchat4j.api.MessageTools;
+import cn.zhouyafeng.itchat4j.api.WechatTools;
 import cn.zhouyafeng.itchat4j.beans.Contact;
+import cn.zhouyafeng.itchat4j.beans.GroupContact;
 import cn.zhouyafeng.itchat4j.core.MsgCenter;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +35,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/order")
 public class OrderController {
-    private Logger logger = LoggerFactory.getLogger(OrderController.class);
+    private  Logger orderLogger = LoggerFactory.getLogger(OrderController.class);
 //    private static Core orderCore = Core.getInstance();
 
 
@@ -97,12 +100,12 @@ public class OrderController {
         try {//2分钟查一次
 //            1、每1-5分钟查询前20分钟的订单：这一步主要是发现客户领券后下单，第一时间保存，微信机器人常用这一步发现客户订单。    //            String endTime="2019-11-16 18:28:22";
 //            但是这一步可能因为阿里官网数据延迟，导致有的订单因延迟而没有查到，出现漏单现象。需要第二步复查。 //    //            String startTime="2019-11-16 17:00:22";
-            logger.info("执行orderDumps，检查前20分钟订单");
+            orderLogger.info("执行orderDumps，检查前20分钟订单");
             String endTime = DateUtil.getCurrentDateTimeString();//"2019-11-17 13:28:22"
             String startTime = DateUtil.getTwtMinAgoDateTimeString();//"2019-11-17 13:28:22"
-            logger.info("执行时间：startTime" + startTime + "endTime" + endTime);
+            orderLogger.info("执行时间：startTime" + startTime + "endTime" + endTime);
             Result result = robotService.orderDetailsGet(startTime, endTime);
-            logger.info("result：" + result.getMessage() + "data：" + result.getData());
+            orderLogger.info("result：" + result.getMessage() + "data：" + result.getData());
             dealOrders(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,12 +117,12 @@ public class OrderController {
     @Scheduled(cron = "0 0 */1 * * ?")
     public void yesDayOrderCheck() {//每个小时一次吧  0 0 */1 * * ?      半个小时一次吧  0 0/30 * * * ?
         try {
-            logger.info("执行yesDayOrderCheck，检查今日至现在的订单");
+            orderLogger.info("执行yesDayOrderCheck，检查今日至现在的订单");
 //每天定时查询昨天的订单（1-5分钟查一次，=>这里每半小时更新一次昨日订单信息，每次个时间段按间隔1个小时算）：这一步主要是防止第一步的客户领券没有在20分钟内下单，做复查用。
 //以上两步，目的是告诉用户你已检测到他的订单，结算时不会漏掉，让用户放心即可。
             Date TodayStartDate = DateUtil.getTodayStartDate();
             Date TwtMinAgoDate = DateUtil.getTwtMinAgoDate();
-            logger.info("执行时间：TodayStartDate" + TodayStartDate + "TwtMinAgoDate" + TwtMinAgoDate);
+            orderLogger.info("执行时间：TodayStartDate" + TodayStartDate + "TwtMinAgoDate" + TwtMinAgoDate);
             List<Date> dateList = DateUtil.dateSplit(TodayStartDate, TwtMinAgoDate);
             for (int i = 0; i < dateList.size(); i++) {//
                 //这里需要i+1的时间为开始时间
@@ -139,7 +142,7 @@ public class OrderController {
     @Scheduled(cron = "0 0/2 * * * ?")
     public void checkOrderStatus() {//检查所有未收货订单状态，2分钟一次？  并且检查是否有新增订单
         try {
-            logger.info("执行checkOrderStatus，检查所有未收货订单状态");
+            orderLogger.info("执行checkOrderStatus，检查所有未收货订单状态");
             List<CheckOrderStatusVo> orderStatusVoList = orderService.checkOrderStatus();
             if (orderStatusVoList.size() < 1) {
                 return;
@@ -153,24 +156,24 @@ public class OrderController {
                 Result result = robotService.orderDetailsGet(fiveMinAgo, fiveMinAft);
                 Order order = (Order) result.getData();
                 if (order == null) {
-                    logger.info("checkOrderStatus此时间段无定单信息,order为空");
+                    orderLogger.info("checkOrderStatus此时间段无定单信息,order为空");
                     continue;
                 }
                 List<OrderInfo> orderList = order.getData();
                 if (orderList.size() < 1) {
-                    logger.info("checkOrderStatus此时间段无定单信息时，orderList不存在数据");
+                    orderLogger.info("checkOrderStatus此时间段无定单信息时，orderList不存在数据");
                     continue;
                 }
                 for (OrderInfo orderInfo : orderList) {//这里至少有一条数据
                     if (checkOrderStatusVo.getTrade_id().equals(orderInfo.getTrade_id())) {//如果未收货状态为12的订单匹配到这个时间段的这个订单
                         if (orderInfo.getTk_status().equals("3")) {//如果这个订单状态由12变为确认收货3，则推送给对应小伙伴消息
                             orderService.receipt(orderInfo.getTrade_id());
-                            logger.info("确认收货，自动更新状态的订单号为：" + orderInfo.getTrade_id());
-                            logger.info("checkOrderStatusVo"+checkOrderStatusVo.getUser_remark_name());
+                            orderLogger.info("确认收货，自动更新状态的订单号为：" + orderInfo.getTrade_id());
+                            orderLogger.info("checkOrderStatusVo"+checkOrderStatusVo.getUser_remark_name());
                             Contact senMsgContact = receipt(checkOrderStatusVo);
-                            logger.info("确认收货,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
+                            orderLogger.info("确认收货,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
                             MessageTools.sendMsgById("亲爱的小伙伴，您的商品确认收货成功,可联系管理员提现/:rose\n" + "订单编号：" + checkOrderStatusVo.getTrade_id() + "\n付款金额：" + checkOrderStatusVo.getAlipay_total_price() + " ￥\n店铺名称：" + checkOrderStatusVo.getSeller_shop_title()  + "\n-----------------------------------------" + "\n发送<提现>指令可领取红包噢/:heart", senMsgContact.getUserName());
-                            logger.info("推送消息成功");
+                            orderLogger.info("推送消息成功");
                         }
                     }//
                 }
@@ -188,7 +191,7 @@ public class OrderController {
     @Scheduled(cron = "0 0/2 * * * ?")
     public void checkNewOrder() {//检查所有新增订单，2分钟一次  并且检查10分钟之内的数据
         try {//CheckNewOrderVo
-            logger.info("执行checkNewOrder，检查所有10分钟内新增订单");
+            orderLogger.info("执行checkNewOrder，检查所有10分钟内新增订单");
             List<CheckOrderStatusVo> checkNewOrder = orderService.checkNewOrder();
             if (checkNewOrder.size() < 1) {
                 return;
@@ -196,7 +199,7 @@ public class OrderController {
             //checkOrderStatusVo这里需要设置备注名字才能发消息
             for (CheckOrderStatusVo checkOrderStatusVo : checkNewOrder) {//找到状态为12的订单且没推送过的订单
                 Contact senMsgContact = receipt(checkOrderStatusVo);
-                logger.info("商品已下单,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
+                orderLogger.info("商品已下单,senMsgContact:nickname"+senMsgContact.getNickName()+"remarkname"+senMsgContact.getRemarkName()+"username"+senMsgContact.getUserName());
                 orderService.upNewSendFlag(checkOrderStatusVo.getTrade_id());
                 MessageTools.sendMsgById("您的商品已下单成功。\n"+"确认收获后可以提现" + "\n发送“个人信息”可查询订单/:rose", senMsgContact.getUserName());
                 Thread.sleep(1000);
@@ -210,27 +213,27 @@ public class OrderController {
     public void dealOrders(Result result) {
         Order order = (Order) result.getData();
         if (order == null) {
-            logger.info("此时间段无定单信息,order为空");
+            orderLogger.info("此时间段无定单信息,order为空");
             return;
         }
         List<OrderInfo> orderList = order.getData();
         List<String> existGoodsInfoList = orderService.findExistGoodsInfoList();
         if (existGoodsInfoList.size() < 1) {//size=0 不为空  一般不会这样
-            logger.info("existGoodsInfoList为空，orderInfo这个表不存在数据");
+            orderLogger.info("existGoodsInfoList为空，orderInfo这个表不存在数据");
             return;
         }
         if (orderList.size() < 1) {
-            logger.info("orderList不存在数据");
+            orderLogger.info("orderList不存在数据");
         }
         for (OrderInfo orderInfo : orderList) {
             String trade_id = orderInfo.getTrade_id();
             if (existGoodsInfoList.contains(trade_id)) {//如果数据库中存在该订单信息则更新
                 orderService.updateGoodsInfoStatus(orderInfo);//这里是对的，不能加break
-                logger.info("更新订单数据" + orderInfo.getTrade_id());
+                orderLogger.info("更新订单数据" + orderInfo.getTrade_id());
             } else {
                 //如果数据库中没有该订单信息，则直接新增
                 orderService.addGoodsInfo(orderInfo);
-                logger.info("新增订单数据" + orderInfo.getTrade_id());
+                orderLogger.info("新增订单数据" + orderInfo.getTrade_id());
             }
         }
     }
@@ -239,12 +242,12 @@ public class OrderController {
     @Scheduled(cron = "0 0 1 * * ?")//0 15 10 * * ? 每天凌晨1点
     public void yesMonthOrderCheck() {//每个月20号开始查询上个月订单  每月10号9点15分钟执行任务 ：0 15 9 10 * ?
         try {
-            logger.info("执行yesMonthOrderCheck，检查上月至昨日订单");
+            orderLogger.info("执行yesMonthOrderCheck，检查上月至昨日订单");
 // 3每个月20-25号，再定时查询上个月的订单：因为20号是淘宝联盟和你结算的时间，这时用户的订单基本固定了，你跟客户结算很安全，可以用3秒1次的频率，查询上个月的订单，再和你的客户结算返利或佣金。
 // 这步查询时，最好直接查询结算过的订单，也就是把参数 query_type 设置为“结算时间 3”，  //            参考：http://wsd.591hufu.com/taokelianmeng/329.html
             Date YesMonStartDate = DateUtil.getYesMonStartDate();
             Date YesEndDate = DateUtil.getYesEndDate();
-            logger.info("执行时间：YesMonStartDate" + YesMonStartDate + "YesEndDate" + YesEndDate);
+            orderLogger.info("执行时间：YesMonStartDate" + YesMonStartDate + "YesEndDate" + YesEndDate);
             List<Date> dateList = DateUtil.dateSplit(YesMonStartDate, YesEndDate);
             for (int i = 0; i < dateList.size(); i++) {//
                 if (i + 1 >= dateList.size()) {//若72+1到73，则超过数据了，就return
@@ -263,17 +266,17 @@ public class OrderController {
     private Contact receipt(CheckOrderStatusVo checkOrderStatusVo) {//抽离出给某个好友单独发送消息的部分
         Contact senMsgContact = new Contact();
 
-        logger.info("checkOrderStatusVo.getUser_remark_name()"+checkOrderStatusVo.getUser_remark_name());;
+        orderLogger.info("checkOrderStatusVo.getUser_remark_name()"+checkOrderStatusVo.getUser_remark_name());;
 //        MsgCenter.core.getContactList();
 //        orderCore.getContactList()
         List<Contact> contactList = JSON.parseArray(JSON.toJSONString(MsgCenter.core.getContactList()), Contact.class);
         for (Contact contact : contactList) {//与好友列表循环匹配，如果匹配到发消息者的id（fromUserName）则可以得到发消息者的信息
             String contactRemarkName = contact.getRemarkName();
-            logger.info("对应的人的nickname为：" + contact.getNickName() +"对应的人的userName为：" + contact.getUserName() + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
+            orderLogger.info("对应的人的nickname为：" + contact.getNickName() +"对应的人的userName为：" + contact.getUserName() + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
             //空指针
             if (checkOrderStatusVo.getUser_remark_name().equals(contactRemarkName)) {//使用remarkName匹配到对应的人，fromUserName
                 String userName = contact.getUserName();
-                logger.info("对应的人的userName为：" + userName + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
+                orderLogger.info("对应的人的userName为：" + userName + ",备注名称为" + contactRemarkName);//发消息的人为：薛娟小号
                 senMsgContact.setUserName(userName);
                 senMsgContact.setRemarkName(checkOrderStatusVo.getUser_remark_name());
             }
@@ -315,22 +318,23 @@ public class OrderController {
 
 
 //    @Scheduled(cron = "0 0/2 * * * ?")
-//    public  void fluseContactList(){//2分钟刷新一次好友数据
-//        ILoginService loginService = new LoginServiceImpl();
-////        logger.info("1.1. 开始接收消息");
-////        loginService.startReceiving();
-//
-//        logger.info("1.2. 获取联系人信息");
-//        loginService.webWxGetContact();
-//
-//        logger.info("1.3. 获取群好友及群好友列表");
-//        loginService.WebWxBatchGetContact();
-//
-//        logger.info("1.4. 缓存本次登陆好友相关消息");
-//        WechatTools.setUserInfo(); // 登陆成功后缓存本次登陆好友相关消息（NickName, UserName）
-//        logger.info("orderCore.getNickName():"+orderCore.getNickName());
-//
+//    public  void sendMsgByGroupNickName(){//2分钟刷新一次好友数据    往指定群内推消息
+//        String groupNickName="<span class=\"emoji emoji1f338\"></span> 月儿福利群\uD83C\uDE32 互加";
+//        //"EncryChatRoomId" -> "@5b017cca2110d92276aaeea136574f09"
+//        //"EncryChatRoomId" @8eecb4a1a20430f5fa05e02f589f1b14 这个值不为1
+////        String groupNickName="测试群啦啦啦啦";
+//        //"NickName" -> "汪汪汪"   "EncryChatRoomId" -> "@84b76e8889ae4b63dd6d317b790bd189"
+//        String username= WechatTools.findGroupUserName(groupNickName);
+//        if("".equals(username)){
+//            orderLogger.info("有误，没有匹配到群");
+//            return;
+//        }
+//        MessageTools.sendMsgById("新功能-测试消息", username);
 //    }
+
+
+
+
 
 
 }
