@@ -197,8 +197,8 @@ public class MsgCenter {
                                             String remark_name="群消息";
                                             dealResource(msg,remark_name);
                                         } else {
-                                            //如果群消息匹配到淘口令，处理淘口令##
-                                            dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
+                                            //如果群消息匹配到淘口令，也不处理淘口令##
+                                            //dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
                                         }
                                     }
                                     //dealOtherMsg(msgHandler,msg);//处理文本消息以外的其他消息
@@ -338,7 +338,7 @@ public class MsgCenter {
 //        RobotService robot2 = new RobotService(client);
         Map searchMap = robotService.convertLink(taoToken);//转取淘口令，得到click_url  商品id num_iid
         if (searchMap == null) {
-            MessageTools.sendMsgById("此商品全网无返,小伙伴不要灰心,来,惊喜总在下一个/:rose", core.getMsgList().get(0).getFromUserName());
+            MessageTools.sendMsgById("亲爱的小伙伴你好,此商品无优惠券噢,不要灰心,惊喜总在下一个/:rose", core.getMsgList().get(0).getFromUserName());
         } else {
             String num_iid = (String) searchMap.get("num_iid");
             TaoBaoResult taoBaoResult = robotService.findInfo(num_iid);//通过商品id得到该商品的具体信息，佣金比例，价格和自己的二合一淘口令
@@ -409,7 +409,7 @@ public class MsgCenter {
         if (msg.getContent().equals("资料共享")) {
             StringBuilder stringBuilder = new StringBuilder();
             if(msg.isGroupMsg()){//如果是群消息
-                stringBuilder.append("资料共享迁移至公众号中,资料持续更新~");
+                stringBuilder.append("资料共享迁移至公众号中,资料持续更新中~");
             }else {//如果是个人消息
                 if (studyService == null) {
                     System.out.println("studyService空");
@@ -449,7 +449,7 @@ public class MsgCenter {
         if (msg.getContent().equals("新手教程")) {
             StringBuilder stringBuilder = new StringBuilder();
             String url=orderService.findxsjc();
-            stringBuilder.append("新手教程地址，也可直接找管理员咨询噢/:rose").append("\n").append(url);
+            stringBuilder.append("新手教程地址/:rose").append("\n").append(url);
             MessageTools.sendMsgById(stringBuilder.toString(), core.getMsgList().get(0).getFromUserName());
         }
         if (msg.getContent().equals("个人信息")) {

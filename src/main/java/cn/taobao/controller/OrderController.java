@@ -3,6 +3,7 @@ package cn.taobao.controller;
 import cn.taobao.entity.Result;
 import cn.taobao.entity.order.Order;
 import cn.taobao.entity.order.OrderInfo;
+import cn.taobao.entity.order.RecommendOrders;
 import cn.taobao.entity.order.vo.CheckOrderStatusVo;
 import cn.taobao.robot.wx.RobotService;
 import cn.taobao.service.order.OrderService;
@@ -332,6 +333,26 @@ public class OrderController {
 //        MessageTools.sendMsgById("新功能-测试消息", username);
 //    }
 
+
+//    //存储好券直播上面的数据（一个小时更新一次）//这里将会设置为每个小时又5分钟存储一遍
+//    @Scheduled(cron = "0 0/5 * * * ?")
+//    public void recommendOrderDumps() {//5分钟一次
+//        try {
+//            orderLogger.info("执行好券直播数据转储");
+//            String material_id="";
+//            Result result=robotService.recommendOrderGet(material_id,1);
+//            List<RecommendOrders> recommendOrdersList=(List<RecommendOrders>) result.getData();
+//            for(RecommendOrders recommendOrders:recommendOrdersList){
+//                orderService.recommendOrderDumps(recommendOrders);//操作这个数据，存到数据库
+//            }
+////
+////            Result result = orderService.userDumps(contactList);
+////            orderLogger.info("result：" + result.getMessage() + "data：" + result.getData());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            //java.util.LinkedHashMap cannot be cast to cn.taobao.entity.order.OrderInfo
+//        }
+//    }
 
 
 

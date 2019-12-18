@@ -1,6 +1,7 @@
 package cn.taobao.robot.wx;
 
 import cn.taobao.entity.Result;
+import cn.taobao.entity.order.RecommendOrders;
 import cn.taobao.robot.dto.LoginEvent;
 import cn.taobao.robot.tbk.Goods;
 import cn.taobao.robot.tbk.Link;
@@ -78,6 +79,9 @@ public class RobotService {
 
     //亲，订单开始时间至订单结束时间的时间段是208分钟，时间段日常要求不超过3个小时，但如618、双11、年货节等大促期间预估时间段不可超过20分钟，超过会提示错误，调用时请务必注意时间段的选择，以保证亲能正常调用！
     private static final String ORDER_DETAILS="https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=%s&end_time=%s&start_time=%s&tbname=%s&page_no=%d&page_size=%d";
+
+
+    private static final String RECOMMEND_ORDER_DETAILS="https://api.open.21ds.cn/apiv2/gettkmaterial2?apkey=%s&material_id=%s&page_no=%d&page_size=%d";
 
     private static Integer page_no=1;
     private static Integer page_size=100;
@@ -644,6 +648,37 @@ public class RobotService {
         }
 
     }
+
+
+
+    public Result recommendOrderGet(String material_id,Integer pageNo) {
+        //设置每五分钟调一次接口，并把数据返回到数据库
+        try {
+            Order order=new Order();
+            String recommendOrderDetails = String.format(RECOMMEND_ORDER_DETAILS, apkey,material_id,pageNo,page_size);
+            System.out.println("recommendOrderDetails链接为:"+recommendOrderDetails);
+            //https://api.open.21ds.cn/apiv2/tbkorderdetailsget?apkey=dd8fa81a-bb23-5026-254a-1f146e46f08d&end_time=2019-11-16 18:28:22&start_time=2019-11-16 17:00:22&tbname=happy月儿弯弯
+            String orderInfo = clientUtil.executeGet(recommendOrderDetails);
+
+            Map resultMap = (Map) parser.readAsObject(orderInfo, Map.class);//resultMap是所有参数
+            if (resultMap==null){//如果resultMap为空，一般情况下不可能为空
+                return new Result(Result.CODE.SUCCESS.getCode(),"resultMap为空，远程访问订单链接有问题");
+            }
+            Integer code=(Integer) resultMap.get("code");
+            if(!"200".equals(code.toString())){//如果code不等于200，依然返回空
+                return new Result(Result.CODE.SUCCESS.getCode(),"code不为200，请检查原因");
+            }
+            List<RecommendOrders> recommendOrdersList = JSON.parseArray(JSON.toJSONString(resultMap.get("data")), RecommendOrders.class);
+            return new Result(Result.CODE.SUCCESS.getCode(),"好券直播订单信息",recommendOrdersList);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Result(Result.CODE.FAIL.getCode(),"订单接口查询报错");
+        }
+
+    }
+
+
+
 
 
 }
