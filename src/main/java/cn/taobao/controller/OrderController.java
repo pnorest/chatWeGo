@@ -321,7 +321,7 @@ public class OrderController {
     public  void sendMsgByGroupNickName(){//2分钟刷新一次好友数据    往指定群内推消息
 //        String groupNickName="<span class=\"emoji emoji1f338\"></span> 月儿福利群\uD83C\uDE32 互加";
 
-        //"EncryChatRoomId" -> "@5b017cca2110d92276aaeea136574f09"
+        ///"EncryChatRoomId" -> "@5b017cca2110d92276aaeea136574f09"
         //"EncryChatRoomId" @8eecb4a1a20430f5fa05e02f589f1b14 这个值不为1
         String groupNickName="测试群啦啦啦啦";
 //        "NickName" -> "汪汪汪"   "EncryChatRoomId" -> "@84b76e8889ae4b63dd6d317b790bd189"
