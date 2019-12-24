@@ -317,21 +317,22 @@ public class OrderController {
 //        }
 //    }
 
-
-//    @Scheduled(cron = "0 0/2 * * * ?")
-//    public  void sendMsgByGroupNickName(){//2分钟刷新一次好友数据    往指定群内推消息
+    @Scheduled(cron = "0 0/30 * * * ?")//30分钟一次  0 0 */1 * * ?每小时一次     0 0/2 * * * ?每两分钟一次
+    public  void sendMsgByGroupNickName(){//2分钟刷新一次好友数据    往指定群内推消息
 //        String groupNickName="<span class=\"emoji emoji1f338\"></span> 月儿福利群\uD83C\uDE32 互加";
-//        //"EncryChatRoomId" -> "@5b017cca2110d92276aaeea136574f09"
-//        //"EncryChatRoomId" @8eecb4a1a20430f5fa05e02f589f1b14 这个值不为1
-////        String groupNickName="测试群啦啦啦啦";
-//        //"NickName" -> "汪汪汪"   "EncryChatRoomId" -> "@84b76e8889ae4b63dd6d317b790bd189"
-//        String username= WechatTools.findGroupUserName(groupNickName);
-//        if("".equals(username)){
-//            orderLogger.info("有误，没有匹配到群");
-//            return;
-//        }
-//        MessageTools.sendMsgById("新功能-测试消息", username);
-//    }
+
+        //"EncryChatRoomId" -> "@5b017cca2110d92276aaeea136574f09"
+        //"EncryChatRoomId" @8eecb4a1a20430f5fa05e02f589f1b14 这个值不为1
+        String groupNickName="测试群啦啦啦啦";
+//        "NickName" -> "汪汪汪"   "EncryChatRoomId" -> "@84b76e8889ae4b63dd6d317b790bd189"
+        String username= WechatTools.findGroupUserName(groupNickName);
+        if("".equals(username)){
+            orderLogger.info("有误，没有匹配到群");
+            return;
+        }
+        MessageTools.sendMsgById("", username);
+        orderLogger.info("定时发送空消息保活");
+    }
 
 
 //    //存储好券直播上面的数据（一个小时更新一次）//这里将会设置为每个小时又5分钟存储一遍

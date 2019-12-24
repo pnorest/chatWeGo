@@ -181,28 +181,28 @@ public class MsgCenter {
                         if (msg.isGroupMsg())//List<String> groupIdList = core.getGroupIdList(); //也可以针对群id和群备注名称，控制单个群消息
                         {//如果是群消息
                             if (msg.getType() != null) {//@@22f6bb82a3813d6f60362b3c37873e2e21ed0b1478bc540594d42419b3a7c867
-
-                                String groupUserName=WechatTools.findGroupUserName(groupNickName);//对
-                                LOG.info("自己设置的群的groupUserName"+groupUserName);
-                                String FromUserName=msg.getFromUserName();
-                                LOG.info("收到消息的FromUserName"+FromUserName);
-                                //core.getMsgList().get(0).getFromUserName()  群消息
-                                if(FromUserName.equals(groupUserName)){//如果发消息的群跟自己设置的群的username一只，则处理群消息，否则不处理
-
-                                    if (msg.getType().equals(MsgTypeEnum.TEXT.getType()))
-                                    {
-                                        String content = msg.getContent();
-                                        String TAO_TOKEN = getMatchers(regex, content);
-                                        if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {//没有匹配到淘口令时,处理资料信息
-                                            String remark_name="群消息";
-                                            dealResource(msg,remark_name);
-                                        } else {
-                                            //如果群消息匹配到淘口令，也不处理淘口令##
-                                            //dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
-                                        }
-                                    }
-                                    //dealOtherMsg(msgHandler,msg);//处理文本消息以外的其他消息
-                                }
+                                  //如果是群消息，不做任何匹配和判断
+//                                String groupUserName=WechatTools.findGroupUserName(groupNickName);//对
+//                                LOG.info("自己设置的群的groupUserName"+groupUserName);
+//                                String FromUserName=msg.getFromUserName();
+//                                LOG.info("收到消息的FromUserName"+FromUserName);
+//                                //core.getMsgList().get(0).getFromUserName()  群消息
+//                                if(FromUserName.equals(groupUserName)){//如果发消息的群跟自己设置的群的username一只，则处理群消息，否则不处理
+//
+//                                    if (msg.getType().equals(MsgTypeEnum.TEXT.getType()))
+//                                    {
+//                                        String content = msg.getContent();
+//                                        String TAO_TOKEN = getMatchers(regex, content);
+//                                        if (TAO_TOKEN.equals("") || TAO_TOKEN == "") {//没有匹配到淘口令时,处理资料信息
+//                                            String remark_name="群消息";
+//                                            dealResource(msg,remark_name);
+//                                        } else {
+//                                            //如果群消息匹配到淘口令，也不处理淘口令##
+//                                            //dealTaoToken(TAO_TOKEN);//当匹配到淘口令时，对消息作出处理
+//                                        }
+//                                    }
+//                                    //dealOtherMsg(msgHandler,msg);//处理文本消息以外的其他消息
+//                                }
                                 //如果不属于指定群，则不做任何处理
 
 
