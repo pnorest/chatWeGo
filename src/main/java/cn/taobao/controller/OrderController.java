@@ -317,7 +317,7 @@ public class OrderController {
 //        }
 //    }
 
-    @Scheduled(cron = "0 0/30 * * * ?")//30分钟一次  0 0 */1 * * ?每小时一次     0 0/2 * * * ?每两分钟一次
+    @Scheduled(cron = "0 0/2 * * * ?")//30分钟一次  0 0 */1 * * ?每小时一次     0 0/2 * * * ?每两分钟一次
     public  void sendMsgByGroupNickName(){//2分钟刷新一次好友数据    往指定群内推消息
 //        String groupNickName="<span class=\"emoji emoji1f338\"></span> 月儿福利群\uD83C\uDE32 互加";
 
@@ -331,7 +331,7 @@ public class OrderController {
             return;
         }
         MessageTools.sendMsgById("", username);
-        orderLogger.info("定时发送空消息保活");
+        orderLogger.info("定时发送空群消息保活");
     }
 
 
