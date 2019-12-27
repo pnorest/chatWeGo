@@ -175,12 +175,13 @@ public class MsgCenter {
             while (true) {
                 if (core.getMsgList().size() > 0 && core.getMsgList().get(0).getContent() != null) {
                     if (core.getMsgList().get(0).getContent().length() > 0) {
-//                        String groupNickName="测试群啦啦啦啦";
+//                      String groupNickName="测试群啦啦啦啦";
                         String groupNickName="<span class=\"emoji emoji1f338\"></span> 月儿福利群\uD83C\uDE32 互加";
                         BaseMsg msg = core.getMsgList().get(0);
                         if (msg.isGroupMsg())//List<String> groupIdList = core.getGroupIdList(); //也可以针对群id和群备注名称，控制单个群消息
                         {//如果是群消息
-                            if (msg.getType() != null) {//@@22f6bb82a3813d6f60362b3c37873e2e21ed0b1478bc540594d42419b3a7c867
+                            if (msg.getType() != null)
+                            {//@@22f6bb82a3813d6f60362b3c37873e2e21ed0b1478bc540594d42419b3a7c867
                                   //如果是群消息，不做任何匹配和判断
 //                                String groupUserName=WechatTools.findGroupUserName(groupNickName);//对
 //                                LOG.info("自己设置的群的groupUserName"+groupUserName);
@@ -204,11 +205,6 @@ public class MsgCenter {
 //                                    //dealOtherMsg(msgHandler,msg);//处理文本消息以外的其他消息
 //                                }
                                 //如果不属于指定群，则不做任何处理
-
-
-
-
-
                             }
                         }
                         else

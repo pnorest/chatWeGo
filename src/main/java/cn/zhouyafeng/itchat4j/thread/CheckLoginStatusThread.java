@@ -27,7 +27,7 @@ public class CheckLoginStatusThread implements Runnable {
 	public void run() {
 		while (core.isAlive()) {
 			long t1 = System.currentTimeMillis(); // 秒为单位
-			if (t1 - core.getLastNormalRetcodeTime() > 65 * 1000) { // 超过65秒，判为离线
+			if (t1 - core.getLastNormalRetcodeTime() > 100 * 1000) { // 超过100秒，判为离线  最后正常的时间状态的时间具体现在100秒，则离线
 				core.setAlive(false);
 				LOG.info("微信已离线");
 			}

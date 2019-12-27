@@ -262,7 +262,7 @@ public class LoginServiceImpl implements ILoginService {
 							break;
 						} else if (retcode.equals(RetCodeEnum.LOGIN_OTHERWHERE.getCode())) { // 其它地方登陆
 							LOG.info(RetCodeEnum.LOGIN_OTHERWHERE.getType());
-							break;
+							continue;//break;  这里改成continue试试
 						} else if (retcode.equals(RetCodeEnum.MOBILE_LOGIN_OUT.getCode())) { // 移动端退出
 							LOG.info(RetCodeEnum.MOBILE_LOGIN_OUT.getType());
 							break;
